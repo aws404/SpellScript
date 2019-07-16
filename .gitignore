@@ -1,5 +1,6 @@
 
 Spells/build.xml
 Spells/.project
-Spells/.externalToolBuilders/Make JAR.launch
+Spells/.externalToolBuilders
 Spells/.classpath
+Spells/.settings
