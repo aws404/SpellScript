@@ -34,29 +34,31 @@ import org.json.simple.parser.ParseException;
 
 @SuppressWarnings("unused")
 public class InventoryGUI implements Listener {
-    private static Main plugin;
+    private Main plugin;
+    private FileManager fileManager;
     
     
 	public InventoryGUI(Main plugin) {
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
-        InventoryGUI.plugin = plugin;
+        this.plugin = plugin;
+        this.fileManager = plugin.fileManager;
 	}
 	JSONParser parser = new JSONParser(); 
 
 	
 	
-	public static Inventory createGUI() {
-		Set<String> spellList = FileManager.getSpells().getKeys(false);
+	public Inventory createGUI() {
+		Set<String> spellList = fileManager.getSpells().getKeys(false);
 		
 		Double guiSlots = Math.ceil((double)spellList.size()/(double)9)*(double)9;
 
 		Inventory inv = Bukkit.createInventory(null, guiSlots.intValue(), "Spell Selection");
 		
 		for (String spell : spellList) {
-			String displayName = FileManager.getSpells().getString(spell + ".displayName");
-			Material icon = Material.getMaterial(FileManager.getSpells().getString(spell + ".icon").toUpperCase());
-			Integer manaCost = FileManager.getSpells().getInt(spell + ".manaCost");
-			String target = FileManager.getSpells().getString(spell + ".target");
+			String displayName = fileManager.getSpells().getString(spell + ".displayName");
+			Material icon = Material.getMaterial(fileManager.getSpells().getString(spell + ".icon").toUpperCase());
+			Integer manaCost = fileManager.getSpells().getInt(spell + ".manaCost");
+			String target = fileManager.getSpells().getString(spell + ".target");
 			
 			if (icon == null) icon = Material.STONE;
 			
@@ -70,7 +72,7 @@ public class InventoryGUI implements Listener {
 			List<String> lore = new ArrayList<String>();
 			lore.add("");
 			if (plugin.usingMana) lore.add(ChatColor.WHITE + "Mana Cost: " + ChatColor.GRAY +  manaCost);
-			lore.add(ChatColor.WHITE + "Target Type: " + ChatColor.GRAY +  FileManager.getSpells().getString(spell + ".target"));
+			lore.add(ChatColor.WHITE + "Target Type: " + ChatColor.GRAY +  fileManager.getSpells().getString(spell + ".target"));
 			if (plugin.debug) lore.add("Spell File: " + spell);
 			
 			meta.setLore(lore);

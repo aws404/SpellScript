@@ -1,0 +1,9 @@
+### MANA SETTINGS ###
+use-mana: true
+mana-regen-time: 2
+mana-regen-per: 2
+max-mana: 20
+### GENERAL SETTINGS ###
+start-with-wand: true
+debug-mode: false
+config-version: 1.0

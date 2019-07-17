@@ -1,0 +1,30 @@
+tp:
+  displayName: Teleport
+  target: self
+  icon: ENDER_PEARL
+  manaCost: 5
+tpup:
+  displayName: Launcher
+  target: raytrace
+  icon: piston
+  manaCost: 2
+meteor:
+  displayName: Meteor
+  target: raytrace
+  icon: fire_charge
+  manaCost: 7
+heal:
+  displayName: Heal
+  target: self
+  icon: apple
+  manaCost: 7
+vanish:
+  displayName: Vanish
+  target: self
+  icon: glass
+  manaCost: 7
+invun:
+  displayName: Invunerablility
+  target: self
+  icon: feather
+  manaCost: 15

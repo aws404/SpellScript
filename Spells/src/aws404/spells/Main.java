@@ -2,6 +2,7 @@ package aws404.spells;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +25,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
-import aws404.spells.ChatCommands;
+import aws404.spells.commands.Manager;
+import aws404.spells.functions.Function;
+import aws404.spells.functions.FunctionsRegister;
 import net.md_5.bungee.api.ChatColor;
 
 
@@ -32,61 +35,77 @@ public class Main extends JavaPlugin {
 	
 	//Define variables
 	public static Main instance;
+    public Manager commandClass;
+    public ActionBarInterface actionBarClass;
+    public FunctionsRegister functionsRegister; 
+    public FileManager fileManager;
+    public InventoryGUI inventoryGUI;
+    public GerneralEventsHandler generalEventsHandler;
+    
 	public Boolean debug;
 	public Boolean usingMana;
 	public Inventory spellGUI;
 	public Integer manaRegenAmount;
 	public Integer manaRegenTime;
 	public Integer maxMana;
+	
+	public HashMap<String, String[]> spellFiles;
+	
 	public HashMap<Player,Integer> manaLevels = new HashMap<Player,Integer>();
 	public HashMap<Player,BossBar> manaBars = new HashMap<Player,BossBar>();
-	
-    private ChatCommands Command;
-    private Functions functions;
-    ActionBarInterface actionbar;
-
     
     static Logger log;
     
     //On Enable
     @Override
     public void onEnable() {
-    	
     	//Misc Variables
     	instance = this;
         log = this.getLogger();
-        Command = new ChatCommands(this);
-        functions = new Functions(this);
-        getCommand("spells").setExecutor(Command);
         BukkitScheduler scheduler = getServer().getScheduler();
         
-        //Register Classes
-        new PlayerListener(this);
-        new FileManager(this);
-        new InventoryGUI(this);
-        getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+    	//Register File Manager
+        fileManager = new FileManager(this);
         
-        actionbar = new ActionBarClass();
+        //Assign Config Options
+        debug = fileManager.getConfig().getBoolean("debug-mode");
+        usingMana = fileManager.getConfig().getBoolean("use-mana");
+        manaRegenAmount = fileManager.getConfig().getInt("mana-regen-per");
+        manaRegenTime = fileManager.getConfig().getInt("mana-regen-time");
+        maxMana = fileManager.getConfig().getInt("max-mana");
         
-        debug = FileManager.getConfig().getBoolean("debug-mode");
-        usingMana = FileManager.getConfig().getBoolean("use-mana");
-        manaRegenAmount = FileManager.getConfig().getInt("mana-regen-per");
-        manaRegenTime =FileManager.getConfig().getInt("mana-regen-time");
-        maxMana =FileManager.getConfig().getInt("max-mana");
+        //Create GUI
+        inventoryGUI = new InventoryGUI(this);
+        spellGUI = inventoryGUI.createGUI();
         
-        spellGUI = InventoryGUI.createGUI();
+        //Register Commands
+        commandClass = new Manager(this);
+        commandClass.registerCommands();
+        if (usingMana) commandClass.registerManaCommands();
+        getCommand("spells").setExecutor(commandClass);
+        
+        //Register Action Bar Class
+        actionBarClass = new ActionBarClass();
+
+        //Register Events
+        generalEventsHandler = new GerneralEventsHandler(this);
+        getServer().getPluginManager().registerEvents(generalEventsHandler, this);
+
+        //Register Functions
+        functionsRegister = new FunctionsRegister(this);
+        functionsRegister.registerFunctions();
+        
+        //Get Spells
+        spellFiles = fileManager.getSpellFiles();
         
         
         //Message
         System.out.println("Spells System Plugin");
         System.out.println("Version 1.0 by aws404");
-        System.out.println("Loading!");
-        
-        FileManager.listFiles();
+        System.out.println("Loaded Spells: " + spellFiles.size());
+        System.out.println(Arrays.toString(spellFiles.keySet().toArray()));
         
         //Mana Handler
-
-        
         if (usingMana) {
         	//Mana Regener
 	        scheduler.scheduleSyncRepeatingTask(this, new Runnable() {@Override public void run() {doManaRegen();}}, 0L, manaRegenTime*20L);
@@ -123,7 +142,7 @@ public class Main extends JavaPlugin {
     public ItemStack getWandItem(String spell) {
     		ItemStack wand = new ItemStack(Material.STICK, 1);
     		ItemMeta meta = wand.getItemMeta();
-    		meta.setDisplayName(ChatColor.BOLD + "Magic Wand: " + ChatColor.RESET + FileManager.getSpells().getString(spell + ".displayName"));
+    		meta.setDisplayName(ChatColor.BOLD + "Magic Wand: " + ChatColor.RESET + fileManager.getSpells().getString(spell + ".displayName"));
 			
     		NamespacedKey key = new NamespacedKey(instance, "currentSpell");
     		meta.getPersistentDataContainer().set(key, PersistentDataType.STRING, spell);
@@ -183,6 +202,17 @@ public class Main extends JavaPlugin {
 		}
     }
     
+    public boolean isValid(Player player) {
+    	if (player != null) {
+    		System.out.println("not null");
+    		if (player.isOnline()) {
+    			System.out.println("is online");
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
     public Object convertType(String input, DataType type) {	
     	try {
         	if (type.name().contains("STRING")) return getString(input);
@@ -201,7 +231,7 @@ public class Main extends JavaPlugin {
     
     
     public void castSpell(LivingEntity target, LivingEntity caster, String spell) {
-    	String[] lines = FileManager.getLines(spell);
+    	String[] lines = spellFiles.get(spell);
     	doAction(target, caster, 0, lines);        	
     }
     
@@ -276,34 +306,17 @@ public class Main extends JavaPlugin {
     		
     		
 			String instruction = segments[1];
-			if (debug) caster.sendMessage(ChatColor.BOLD + "Instruction: " + instruction);
+			String[] args = getArgs(instruction);
+			String functionName = instruction.substring(0, instruction.indexOf("("));
+			Function function = functionsRegister.getFunction(functionName);
+			if (debug) caster.sendMessage(ChatColor.BOLD + "Script: " + instruction);
+			if (debug) caster.sendMessage(ChatColor.BOLD + "Function Name: " + function.name());
+			if (debug) caster.sendMessage(ChatColor.ITALIC + "Arguments: " + Arrays.toString(args));
 			if (debug) caster.sendMessage(ChatColor.ITALIC + "Amount of Targets: " + spellTarget.size());
 			
     		for (LivingEntity currentTarget : spellTarget) {
-			
     			if (debug) caster.sendMessage("Target: " + currentTarget.toString());;
-    			String[] args = getArgs(instruction);
-    			
-    			
-    			if (instruction.contains("teleportRelative")) functions.teleportRelative(args, currentTarget);
-				if (instruction.contains("adjustHealth")) functions.adjustHealth(args, currentTarget);			    	  
-				if (instruction.contains("rayTraceTeleport")) functions.rayTraceTeleport(args, currentTarget);					  
-				if (instruction.contains("sendMessage")) functions.sendMessage(args, currentTarget);				    
-				if (instruction.contains("setHealth"))  functions.setHealth(args, currentTarget);
-				if (instruction.contains("setHunger")) functions.setHunger(args, currentTarget);    
-				if (instruction.contains("adjustHunger")) functions.adjustHunger(args, currentTarget);		    
-				if (instruction.contains("particle")) functions.particle(args, currentTarget);				
-				if (instruction.contains("playSound")) functions.playSound(args, currentTarget);				
-				if (instruction.contains("playSoundPlayer")) functions.playSoundPlayer(args, currentTarget);
-				if (instruction.contains("fire")) functions.fire(args, currentTarget);
-				if (instruction.contains("effect")) functions.effect(args, currentTarget);
-				if (instruction.contains("setMana")) functions.setMana(args, currentTarget);
-				if (instruction.contains("adjustMana"))  functions.adjustMana(args, currentTarget);
-				if (instruction.contains("addMotion")) functions.addMotion(args, currentTarget);
-				if (instruction.contains("addRelativeMotion")) functions.addRelativeMotion(args, currentTarget);
-				if (instruction.contains("setInvulnerable")) functions.setInvulnerable(args, currentTarget);
-				
-				
+    			function.runFunction(currentTarget, args);		
     		}
 			if (debug) caster.sendMessage(" ");
 			
