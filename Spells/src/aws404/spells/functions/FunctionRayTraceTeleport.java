@@ -2,20 +2,22 @@ package aws404.spells.functions;
 
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import aws404.spells.DataType;
+import aws404.spells.SpellScriptVariable;
 import net.md_5.bungee.api.ChatColor;
 
-public class FunctionRayTraceTeleport extends Function{
+public class FunctionRayTraceTeleport extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, String[] args) {
-		Double range = (Double) plugin.convertType(args[0], DataType.DOUBLE);
+	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+		Double range = args[0].getDouble();
 		
 		rayTraceTeleport(target, range);		
 	}
@@ -39,23 +41,25 @@ public class FunctionRayTraceTeleport extends Function{
 			  target.teleport(loc);
 			  return true;
 		  } else {
-			  double x = r.getHitBlock().getX()+r.getHitBlockFace().getModX()+0.5;
-			  double y = r.getHitBlock().getY()+r.getHitBlockFace().getModY();
-			  double z = r.getHitBlock().getZ()+r.getHitBlockFace().getModZ()+0.5;
-			  if (target.getWorld().getBlockAt(r.getHitBlock().getX(), r.getHitBlock().getY()+1, r.getHitBlock().getZ()).isPassable() && target.getWorld().getBlockAt(r.getHitBlock().getX(), r.getHitBlock().getY()+2, r.getHitBlock().getZ()).isPassable()) {
-				  //Check blocks if avavliable
-				  //hit block (free)
-				  //free
-				  Location newLoc = new Location(target.getWorld(), x, y, z, target.getLocation().getYaw(), target.getLocation().getPitch());
-				  target.teleport(newLoc);
+			  BlockFace face = r.getHitBlockFace();  
+			  double x = r.getHitBlock().getX()+0.5;
+			  double y = r.getHitBlock().getY();
+			  double z = r.getHitBlock().getZ()+0.5;
+			  
+			  if (face == BlockFace.DOWN) y = y-2;
+			  if (face == BlockFace.UP) y = y+1;
+			  if (face == BlockFace.NORTH) z = z-1;
+			  if (face == BlockFace.EAST) x = x+1;
+			  if (face == BlockFace.SOUTH) z = z+1;
+			  if (face == BlockFace.WEST) x = x-1;
+			  
+			  Location loc = new Location(target.getWorld(), x, y, z, target.getLocation().getYaw(), target.getLocation().getPitch());
+			  
+			  if (isSafeLocation(loc)) {
+				  target.teleport(loc);
 				  return true;
-			  } else if (target.getWorld().getBlockAt(r.getHitBlock().getX(), r.getHitBlock().getY()+2, r.getHitBlock().getZ()).isPassable() && target.getWorld().getBlockAt(r.getHitBlock().getX(), r.getHitBlock().getY()+3, r.getHitBlock().getZ()).isPassable()) {
-				  //Check blocks if avavliable
-				  //free
-				  //hit block (free)
-				  //obstructed
-				  Location newLoc = new Location(target.getWorld(), x, y+1, z, target.getLocation().getYaw(), target.getLocation().getPitch());
-				  target.teleport(newLoc);
+			  } else if (isSafeLocation(loc.add(0, -1, 0))) {
+				  target.teleport(loc);
 				  return true;
 			  } else {
 				  if (target.getType().equals(EntityType.PLAYER)) plugin.actionBarClass.sendActionbar((Player) target, ChatColor.RED + "Unable to Teleport, Destination is Obstructued");
@@ -63,5 +67,25 @@ public class FunctionRayTraceTeleport extends Function{
 			  }
 		  }
 	}
+	
+	
+    @SuppressWarnings("deprecation")
+	private boolean isSafeLocation(Location location) {
+    	//Method Credit: https://www.spigotmc.org/threads/safely-teleport-players.83205/#post-1546321
+        Block feet = location.getBlock();
+        if (!feet.getType().isTransparent() && !feet.getLocation().add(0, 1, 0).getBlock().getType().isTransparent()) {
+            return false; // not transparent (will suffocate)
+        }
+        Block head = feet.getRelative(BlockFace.UP);
+        if (!head.getType().isTransparent()) {
+            return false; // not transparent (will suffocate)
+        }
+        Block ground = feet.getRelative(BlockFace.DOWN);
+        if (!ground.getType().isSolid()) {
+            return false; // not solid
+        }
+        return true;
+    }
+ 
 
 }

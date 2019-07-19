@@ -13,16 +13,15 @@ public class CommandReload extends AbstractCommand {
 		Boolean useMana = fileManager.getConfig().getBoolean("use-mana");
 		if (useMana != plugin.usingMana) sender.sendMessage("Changing the 'use-mana' option required a server restart");
 		Integer manaRegenTime = fileManager.getConfig().getInt("mana-regen-time");
-		if (manaRegenTime != plugin.manaRegenTime) sender.sendMessage("Changing the 'mana-regen-time' option required a server restart");
+		if (manaRegenTime != manaHandler.manaRegenTime) sender.sendMessage("Changing the 'mana-regen-time' option required a server restart");
 		
 		
         plugin.debug = fileManager.getConfig().getBoolean("debug-mode");
         plugin.usingMana = useMana;
-        plugin.manaRegenAmount = fileManager.getConfig().getInt("mana-regen-per");
-        plugin.manaRegenTime = manaRegenTime;
-        plugin.maxMana = fileManager.getConfig().getInt("max-mana");
+        manaHandler.manaRegenAmount = fileManager.getConfig().getInt("mana-regen-per");
+        manaHandler.manaRegenTime = manaRegenTime;
+        manaHandler.maxMana = fileManager.getConfig().getInt("max-mana");
         plugin.spellGUI = plugin.inventoryGUI.createGUI();
-        plugin.spellFiles = fileManager.getSpellFiles();
 		sender.sendMessage("Configs Reloaded!");
 		return true;
 	}
@@ -46,5 +45,11 @@ public class CommandReload extends AbstractCommand {
 	public Permission permission() {
 		return new Permission("spells.admin.reload");
 	}
+	
+	@Override
+	public String description() {
+		return "Reloads configuration and spell files";
+	}
+
 
 }

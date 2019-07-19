@@ -2,13 +2,13 @@ package aws404.spells.functions;
 
 import org.bukkit.entity.LivingEntity;
 
-import aws404.spells.DataType;
+import aws404.spells.SpellScriptVariable;
 
-public class FunctionSetInvulnerable extends Function{
+public class FunctionSetInvulnerable extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, String[] args) {
-		Boolean value = (boolean) plugin.convertType(args[0], DataType.BOOLEAN);
+	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+		Boolean value = args[0].getBoolean();
 		
 		setInvulnerable(target, value);
 	}

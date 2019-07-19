@@ -4,22 +4,22 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.LivingEntity;
-import aws404.spells.DataType;
+import aws404.spells.SpellScriptVariable;
 
-public class FunctionPlaySound extends Function{
+public class FunctionPlaySound extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, String[] args) {
-       	Double xoff = (Double) plugin.convertType(args[0], DataType.DOUBLE);
-       	Double yoff = (Double) plugin.convertType(args[1], DataType.DOUBLE);
-       	Double zoff = (Double) plugin.convertType(args[2], DataType.DOUBLE);
-       	Sound sound = Sound.valueOf(((String) plugin.convertType(args[3], DataType.STRING)).toUpperCase());
+	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+       	Double xoff = args[0].getDouble();
+       	Double yoff = args[1].getDouble();
+       	Double zoff = args[2].getDouble();
+       	Sound sound = Sound.valueOf(args[3].getString().toUpperCase());
 		if (sound == null) {
-			plugin.sendError((String) plugin.convertType(args[3], DataType.STRING) + " is not a valid sound name!");
+			plugin.sendError(args[3].getDouble() + " is not a valid sound name!");
 			return;
 		}
-		Float volume = (Float) plugin.convertType(args[4], DataType.FLOAT);
-		Float pitch = (Float) plugin.convertType(args[5], DataType.FLOAT);
+		Float volume = args[4].getFloat();
+		Float pitch = args[5].getFloat();
 		
 		playSound(target, xoff, yoff, zoff, sound, volume, pitch);
 	}

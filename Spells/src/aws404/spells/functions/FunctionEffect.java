@@ -4,20 +4,20 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import aws404.spells.DataType;
+import aws404.spells.SpellScriptVariable;
 
-public class FunctionEffect extends Function {
+public class FunctionEffect extends SpellScriptFunction {
 
 	@Override
-	public void runFunction(LivingEntity target, String[] args) {
-		PotionEffectType type = PotionEffectType.getByName(((String) plugin.convertType(args[0], DataType.STRING)).toUpperCase());
+	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+		PotionEffectType type = PotionEffectType.getByName(args[0].getString().toUpperCase());
 		if (type == null) {
-			plugin.sendError((String) plugin.convertType(args[0], DataType.STRING) + " is not a valid potion effect!");
+			plugin.sendError(args[0].getString() + " is not a valid potion effect!");
 			return;
 		}
-		int durration = (int) plugin.convertType(args[1], DataType.INTEGER);
-		int level = (int) plugin.convertType(args[2], DataType.INTEGER);
-		boolean hideParticles = (boolean) plugin.convertType(args[3], DataType.BOOLEAN);
+		int durration = args[1].getInt();
+		int level = args[2].getInt();
+		boolean hideParticles = args[3].getBoolean();
 		
 		effect(target, type, durration, level, hideParticles);
 	}

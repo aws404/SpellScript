@@ -3,13 +3,13 @@ package aws404.spells.functions;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
 
-import aws404.spells.DataType;
+import aws404.spells.SpellScriptVariable;
 
-public class FunctionAdjustHealth extends Function {
+public class FunctionAdjustHealth extends SpellScriptFunction {
 
 	@Override
-	public void runFunction(LivingEntity target, String[] args) {
-		Integer amount = (int) plugin.convertType(args[0], DataType.INTEGER);
+	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+		Integer amount = args[0].getInt();
 		
 		adjustHealth(target, amount);
 	}
@@ -25,8 +25,8 @@ public class FunctionAdjustHealth extends Function {
 			  return true;
 		  } else {
 			  double newHealth = target.getHealth() + amount;
-			  if (newHealth > target.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue()) {
-				  target.setHealth(target.getAttribute(Attribute.GENERIC_MAX_HEALTH).getDefaultValue());
+			  if (newHealth > target.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()) {
+				  target.setHealth(target.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
 				  return true;
 			  } else {
 				  target.setHealth(newHealth);

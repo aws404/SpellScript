@@ -34,4 +34,10 @@ public class CommandNotFound extends AbstractCommand{
 		return new Permission("spells.help");
 	}
 	
+	@Override
+	public String description() {
+		return "The command not found exception";
+	}
+
+	
 }

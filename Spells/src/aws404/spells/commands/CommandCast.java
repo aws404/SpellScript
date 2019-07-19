@@ -68,4 +68,9 @@ public class CommandCast extends AbstractCommand{
 		return new Permission("spells.admin.cast");
 	}
 
+	@Override
+	public String description() {
+		return "Casts a spell from the script file with optional target and caster";
+	}
+
 }

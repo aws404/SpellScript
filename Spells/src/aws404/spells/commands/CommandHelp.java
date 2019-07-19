@@ -12,15 +12,15 @@ public class CommandHelp extends AbstractCommand{
 
 	@Override
 	public boolean run(CommandSender sender, ArrayList<String> args, Boolean isPlayer) {
-		sender.sendMessage("===Spells Plugin Ver1.0===");
+		sender.sendMessage("--------------- Spells Plugin Ver1.0 ---------------");
 		ArrayList<AbstractCommand> commands = plugin.commandClass.commands;
 		for (AbstractCommand cmd : commands) {
-			sender.sendMessage(ChatColor.BOLD + cmd.name() + ChatColor.RESET + " - " + ChatColor.ITALIC + "DESCRIPTION HERE");
-			sender.sendMessage(" - Usage: " + ChatColor.ITALIC + cmd.usage());
+			sender.sendMessage(ChatColor.BOLD + "- " + cmd.name() + ChatColor.RESET + " - " + ChatColor.ITALIC + cmd.description());
+			sender.sendMessage("   - Usage: " + ChatColor.ITALIC + cmd.usage());
 			String[] aliases = cmd.aliases();
-			if (aliases.length >= 1) sender.sendMessage(" - Aliases: " + ChatColor.ITALIC + Arrays.toString(aliases));
+			if (aliases.length >= 1) sender.sendMessage("   - Aliases: " + ChatColor.ITALIC + Arrays.toString(aliases));
 		}
-		sender.sendMessage("==========================");
+		sender.sendMessage("-----------------------------------------------------");
 		return true;
 	}
 
@@ -43,5 +43,11 @@ public class CommandHelp extends AbstractCommand{
 	public Permission permission() {
 		return new Permission("spells.help");
 	}
+	
+	@Override
+	public String description() {
+		return "This help message";
+	}
+
 
 }

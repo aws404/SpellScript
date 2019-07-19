@@ -57,6 +57,12 @@ public class CommandGetWand extends AbstractCommand{
 	public Permission permission() {
 		return new Permission("spells.admin.wand");
 	}
+	
+	@Override
+	public String description() {
+		return "Gives a wand item to the specified player, optional spell argument";
+	}
+
 
 
 }

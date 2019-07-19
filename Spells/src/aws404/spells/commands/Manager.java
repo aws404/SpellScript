@@ -1,14 +1,16 @@
 package aws404.spells.commands;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import aws404.spells.Main;
-import net.md_5.bungee.api.ChatColor;
 
 public class Manager implements CommandExecutor{
 	 @SuppressWarnings("unused")
@@ -20,7 +22,7 @@ public class Manager implements CommandExecutor{
 
 	    public ArrayList<AbstractCommand> commands = new ArrayList<AbstractCommand>();
 
-	    public void registerCommands() {
+	    public void registerCommands() { //trigged on server startup
 	        this.commands.add(new CommandGetWand());
 	        this.commands.add(new CommandHelp());
 	        this.commands.add(new CommandPrint());
@@ -29,7 +31,7 @@ public class Manager implements CommandExecutor{
 
 	    }
 	    
-	    public void registerManaCommands() {
+	    public void registerManaCommands() { //Trigged on server startup if mana is enabled
 	    	this.commands.add(new CommandMana());
 	    }
 	    
@@ -40,6 +42,7 @@ public class Manager implements CommandExecutor{
 	        	AbstractCommand func = (AbstractCommand) subcommands.next();
 	        	
 	        	if (func.name().equalsIgnoreCase(commandName)) return func;
+	        	if (Arrays.asList(func.aliases()).contains(commandName)) return func;
 	        }
 	        
 	        return null;

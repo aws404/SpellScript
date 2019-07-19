@@ -1,0 +1,6 @@
+target.adjustHealth(20);
+target.adjustHunger(20);
+target[5].adjustHealth(5);
+target.particle(0,0,0,1,1,1,"heart",0,10,0);
+target.setFrozen(true);
+target.playSound(0, 0, 0, "ENTITY_CAT_HISS", 1, 1);

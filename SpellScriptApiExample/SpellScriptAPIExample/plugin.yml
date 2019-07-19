@@ -1,0 +1,10 @@
+main: aws404.spellScriptAPIEx.Main
+name: SpellScriptAPIEx
+version: 1.0
+api-version: 1.14
+author: aws404
+depends: [SpellScript]
+tab-complete: 0
+description: Example API hook for SpellScript
+
+

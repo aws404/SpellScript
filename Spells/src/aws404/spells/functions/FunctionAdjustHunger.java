@@ -4,16 +4,16 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
-import aws404.spells.DataType;
+import aws404.spells.SpellScriptVariable;
 
-public class FunctionAdjustHunger extends Function{
+public class FunctionAdjustHunger extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, String[] args) {
+	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
 		Player player;
 		if (target.getType() == EntityType.PLAYER) player = (Player) target;
 		else return;
-		Integer amount = (int) plugin.convertType(args[0], DataType.INTEGER);
+		Integer amount = args[0].getInt();
 		
 		adjustHunger(player, amount);		
 	}

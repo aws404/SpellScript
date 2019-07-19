@@ -1,0 +1,4 @@
+target.particle(0, 0, 0, 0.1, 0.2, 0.1, "PORTAL", 0.6, 100);
+target.rayTraceTeleport(13);
+target.playSound(0, 0, 0, "ENTITY_ENDERMAN_TELEPORT", 1, 1);
+target.particle(0, 0, 0, 0.1, 0.2, 0.1, "PORTAL", 0.6, 100);

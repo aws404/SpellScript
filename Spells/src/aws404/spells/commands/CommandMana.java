@@ -32,11 +32,11 @@ public class CommandMana extends AbstractCommand{
 			sender.sendMessage("Player not found");
 			return true;
 		} else {
-			if (amount > plugin.maxMana) amount = plugin.maxMana;
+			if (amount > manaHandler.maxMana) amount = manaHandler.maxMana;
 			else if (amount < 0) amount = 0;
 			
 			sender.sendMessage("Set " + player.getName() + "'s mana to " + amount);
-			plugin.manaLevels.replace((Player) sender, amount);
+			manaHandler.manaLevels.replace((Player) sender, amount);
 			return true;
 		}
 	}
@@ -60,6 +60,12 @@ public class CommandMana extends AbstractCommand{
 	public Permission permission() {
 		return new Permission("spells.admin.mana");
 	}
+	
+	@Override
+	public String description() {
+		return "Allows for setting of a players mana level";
+	}
+
 	
 
 }

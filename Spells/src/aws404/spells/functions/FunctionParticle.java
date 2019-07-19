@@ -3,21 +3,21 @@ package aws404.spells.functions;
 import org.bukkit.Particle;
 import org.bukkit.entity.LivingEntity;
 
-import aws404.spells.DataType;
+import aws404.spells.SpellScriptVariable;
 
-public class FunctionParticle extends Function{
+public class FunctionParticle extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, String[] args) {
-		double x = target.getLocation().getX() + (Double) plugin.convertType(args[0], DataType.DOUBLE);
-    	double y = target.getLocation().getY() + (Double) plugin.convertType(args[1], DataType.DOUBLE);
-    	double z = target.getLocation().getZ() + (Double) plugin.convertType(args[2], DataType.DOUBLE);
-    	double xoff = (Double) plugin.convertType(args[3], DataType.DOUBLE);
-    	double yoff = (Double) plugin.convertType(args[4], DataType.DOUBLE);
-    	double zoff = (Double) plugin.convertType(args[5], DataType.DOUBLE);
-    	Particle particle = Particle.valueOf(((String) plugin.convertType(args[6], DataType.STRING)).toUpperCase());
-    	double speed = (double) plugin.convertType(args[7], DataType.DOUBLE);
-    	int count = (int) plugin.convertType(args[8], DataType.INTEGER);  
+	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+		double x = target.getLocation().getX() + args[0].getDouble();
+    	double y = target.getLocation().getY() + args[1].getDouble();
+    	double z = target.getLocation().getZ() + args[2].getDouble();
+    	double xoff = args[3].getDouble();
+    	double yoff = args[4].getDouble();
+    	double zoff = args[5].getDouble();
+    	Particle particle = Particle.valueOf(args[6].getString().toUpperCase());
+    	double speed = args[7].getDouble();
+    	int count = args[8].getInt(); 
 		
     	particle(target, particle, x, y, z, xoff, yoff, zoff, speed, count);
 	}

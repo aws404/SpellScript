@@ -1,17 +1,15 @@
 package aws404.spells;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
-import java.util.stream.Stream;
-
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.craftbukkit.libs.jline.internal.Log;
 
 public class FileManager {
 
@@ -21,6 +19,8 @@ public class FileManager {
 	
 	public static YamlConfiguration config;
 	private static File configFile;
+	
+	private File spellsFolder;
 	
 	static Main plugin;
 	
@@ -33,13 +33,16 @@ public class FileManager {
 	    
 	    configFile = new File(plugin.getDataFolder(), "config.yml"); //The file (you can name it what you want)
 	    config = YamlConfiguration.loadConfiguration(configFile);
+	    
+	    
+	    spellsFolder = new File(plugin.getDataFolder(), "spells");
 	   
-	   
-	    if (!configFile.exists()) {
-	    	plugin.saveDefaultConfig();
-	    	configFile = new File(plugin.getDataFolder(), "config.yml"); //The file (you can name it what you want)
-		    config = YamlConfiguration.loadConfiguration(configFile);
-	    }
+	    if (!configFile.exists() || !spellsFile.exists() || !spellsFolder.exists()) {
+	    	reloadConfigs();
+        }
+        
+        plugin.spellFiles = getSpellFiles();
+        
     }
     
     
@@ -71,22 +74,35 @@ public class FileManager {
     }
     
     public void reloadConfigs() {
-        if (spellsFile == null) {
-        spellsFile = new File(plugin.getDataFolder(), "spells.yml");
+	    if (!configFile.exists()) {
+	    	plugin.saveDefaultConfig();
+	    	configFile = new File(plugin.getDataFolder(), "config.yml");
+	    }
+        if (!spellsFile.exists()) {
+            spellsFile.getParentFile().mkdirs();
+            plugin.saveResource("spells.yml", false);
+    	    spellsFile = new File(plugin.getDataFolder(), "spells.yml");
+         }
+        if (!spellsFolder.exists()) {
+        	spellsFolder.mkdirs();
+        	plugin.saveResource("spells/meteor.spell", false);
+        	plugin.saveResource("spells/heal.spell", false);
+        	plugin.saveResource("spells/teleport.spell", false);
+    	    spellsFolder = new File(plugin.getDataFolder(), "spells");
         }
-        if (configFile == null) {
-        configFile = new File(plugin.getDataFolder(), "config.yml");
-        }
-        spells = YamlConfiguration.loadConfiguration(spellsFile);
-        config = YamlConfiguration.loadConfiguration(configFile);
+        
+        plugin.spellFiles = getSpellFiles();
+	    config = YamlConfiguration.loadConfiguration(configFile);
+	    spells = YamlConfiguration.loadConfiguration(spellsFile);
+	    Log.info("Configurations and Spells Reloaded");
+
     }
     
     //Spell Files
     
 	
-	public ArrayList<File> listFiles() {
-		File folder = new File(plugin.getDataFolder(), "spells");;
-		File[] listOfFiles = folder.listFiles();
+	private ArrayList<File> listFiles() {
+		File[] listOfFiles = spellsFolder.listFiles();
 		ArrayList<File> spellFiles = new ArrayList<File>();
 	
 		for (File f : listOfFiles) {
@@ -97,14 +113,19 @@ public class FileManager {
 		return spellFiles;
 	}
 	
-	public HashMap<String, String[]> getSpellFiles() {
+	private HashMap<String, String[]> getSpellFiles() {
 		HashMap<String, String[]> filesList = new HashMap<String, String[]>();
 		
 		ArrayList<File> spellFiles = listFiles();
 		
 		for (File file : spellFiles) {
 			String name = file.getName().replace(".spell", "");
-			String[] lines = readLineByLineJava8(file.getAbsolutePath()).replaceAll("\n", "").split(";");
+			String[] lines = new String[0];
+			try {
+				lines = getContents(file).split(";");
+			} catch (IOException e) {
+				plugin.sendError("Error Loading File '" + file.getName() + "' Error:" + e.getMessage());
+			}
 			
 			filesList.put(name, lines);
 		}
@@ -113,17 +134,24 @@ public class FileManager {
 	}
 	
 	
-	private String readLineByLineJava8(String filePath) {
-	    StringBuilder contentBuilder = new StringBuilder();
-	    try (Stream<String> stream = Files.lines( Paths.get(filePath), StandardCharsets.UTF_8))
-	    {
-	        stream.forEach(s -> contentBuilder.append(s).append("\n"));
+	private String getContents(File file) throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader (file));
+	    String line = null;
+	    StringBuilder stringBuilder = new StringBuilder();
+
+	    try {
+	        while((line = reader.readLine()) != null) {
+	        	if (!line.startsWith("//")) {
+	        		stringBuilder.append(line);
+	        	} else {
+	        		stringBuilder.append(";");
+	        	}
+	        }
+
+	        return stringBuilder.toString();
+	    } finally {
+	        reader.close();
 	    }
-	    catch (IOException e)
-	    {
-	        e.printStackTrace();
-	    }
-	    return contentBuilder.toString();
 	}
 	
     

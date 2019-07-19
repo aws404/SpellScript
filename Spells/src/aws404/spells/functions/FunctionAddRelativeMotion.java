@@ -3,14 +3,14 @@ package aws404.spells.functions;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
-import aws404.spells.DataType;
+import aws404.spells.SpellScriptVariable;
 
-public class FunctionAddRelativeMotion extends Function{
+public class FunctionAddRelativeMotion extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, String[] args) {
-		Double x = (double) plugin.convertType(args[0], DataType.DOUBLE);
-		Double y = (double) plugin.convertType(args[1], DataType.DOUBLE);
+	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+		Double x = args[0].getDouble();
+		Double y = args[1].getDouble();
 		
 		addRelativeMotion(target, x, y);
 	}

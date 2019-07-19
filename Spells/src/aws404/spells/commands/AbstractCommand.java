@@ -7,10 +7,12 @@ import org.bukkit.permissions.Permission;
 
 import aws404.spells.FileManager;
 import aws404.spells.Main;
+import aws404.spells.ManaHandler;
 
 public abstract class AbstractCommand {
 	protected Main plugin = Main.instance;
 	protected FileManager fileManager = plugin.fileManager;
+	protected ManaHandler manaHandler = plugin.manaHandler;
 	
 	public AbstractCommand() {
 	}
@@ -22,6 +24,8 @@ public abstract class AbstractCommand {
     public abstract String usage();
     
     public abstract String[] aliases();
+    
+    public abstract String description();
     
     public abstract Permission permission();
     

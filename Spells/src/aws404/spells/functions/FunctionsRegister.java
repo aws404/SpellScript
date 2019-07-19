@@ -13,7 +13,7 @@ public class FunctionsRegister {
         this.plugin = plugin;
 	}
 
-    private ArrayList<Function> functions = new ArrayList<Function>();
+    private ArrayList<SpellScriptFunction> functions = new ArrayList<SpellScriptFunction>();
 
     public void registerFunctions() {
         this.functions.add(new FunctionAddMotion());
@@ -23,6 +23,7 @@ public class FunctionsRegister {
         this.functions.add(new FunctionAdjustMana());
         this.functions.add(new FunctionEffect());
         this.functions.add(new FunctionFire());
+        this.functions.add(new FunctionSetFrozen());
         this.functions.add(new FunctionParticle());
         this.functions.add(new FunctionPlaySound());
         this.functions.add(new FunctionPlaysoundIndividual());
@@ -35,11 +36,16 @@ public class FunctionsRegister {
         this.functions.add(new FunctionTeleportRelative());
     }
     
-    public Function getFunction(String functionName) {
-    	Iterator<Function> subcommands = this.functions.iterator();
+    public boolean registerCustomFunction(SpellScriptFunction functionClass) {
+    	this.functions.add(functionClass);
+    	return true;
+    }
+    
+    public SpellScriptFunction getFunction(String functionName) {
+    	Iterator<SpellScriptFunction> subcommands = this.functions.iterator();
 
         while (subcommands.hasNext()) {
-        	Function func = (Function) subcommands.next();
+        	SpellScriptFunction func = (SpellScriptFunction) subcommands.next();
         	
         	if (func.name().matches(functionName)) {
                 return func;

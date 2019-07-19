@@ -16,6 +16,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -29,24 +31,62 @@ import net.md_5.bungee.api.ChatColor;
 public class GerneralEventsHandler implements Listener{
 	private Main plugin;
 	private FileManager fileManager;
+	private ManaHandler manaHandler;
 	
     public GerneralEventsHandler(Main plugin) {
         this.plugin = plugin;
         this.fileManager = plugin.fileManager;
+        this.manaHandler = plugin.manaHandler;
+    }
+    
+    
+    //Used for the setFrozen function
+    @EventHandler
+    public void moveEvent(PlayerMoveEvent e) {
+    	if (plugin.frozenPlayers.contains(e.getPlayer())) {
+	    	if (hasChangedBlockCoordinates(e.getFrom(), e.getTo())) {
+		        Location from = e.getFrom();                  
+		        double x = Math.floor(from.getX());
+		        double z = Math.floor(from.getZ());
+		
+		        x += .5;
+		        z += .5;
+		        e.getPlayer().teleport(new Location(from.getWorld(), x, from.getY(), z, from.getYaw(), from.getPitch()));
+	        }
+    	}
+    }
+    
+    public static boolean hasChangedBlockCoordinates(final Location fromLoc, final Location toLoc) {
+        return !(fromLoc.getWorld().equals(toLoc.getWorld())
+                && fromLoc.getBlockX() == toLoc.getBlockX()
+                && fromLoc.getBlockY() == toLoc.getBlockY()
+                && fromLoc.getBlockZ() == toLoc.getBlockZ());
     }
 
-	
+    
+    
+    
+    
+    
+    //Mana setup on join	
 	@EventHandler
 	public void joinGame(PlayerJoinEvent e) {
-		Player p = e.getPlayer();
-		
-    	if(plugin.manaLevels.containsKey(p)) {
-    		plugin.manaLevels.replace(p, 0);
-    	} else {
-    		plugin.manaLevels.put(p, 0);
-    	}
+		if (plugin.usingMana) {
+			Player p = e.getPlayer();
+			
+	    	if(manaHandler.manaLevels.containsKey(p)) {
+	    		manaHandler.manaLevels.replace(p, 0);
+	    	} else {
+	    		manaHandler.manaLevels.put(p, 0);
+	    	}
+		}
 	}
 
+	
+	
+	
+	
+	//Used for wand management
 	@EventHandler
 	public void rightClick(PlayerInteractEvent e) {
 		Player p = e.getPlayer();
@@ -57,7 +97,7 @@ public class GerneralEventsHandler implements Listener{
 		if (item.getType() == Material.STICK && item.hasItemMeta()) {
 			if (item.getItemMeta().getDisplayName().contains("Magic Wand")) {
 				Action action = e.getAction();
-				if ((action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) && p.isSneaking()) {
+				if ((action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) && p.isSneaking() && e.getHand() == EquipmentSlot.HAND) {
 					//Open GUI
 					p.openInventory(plugin.spellGUI);
 					return;
@@ -71,7 +111,7 @@ public class GerneralEventsHandler implements Listener{
 		    		    String foundValue = itemMeta.getPersistentDataContainer().get(key, PersistentDataType.STRING);
 		    		    Integer manaCost = fileManager.getSpells().getInt(foundValue + ".manaCost");
 		    		    String displayName = fileManager.getSpells().getString(foundValue + ".displayName");
-		    		    if (!plugin.takeMana(manaCost, p)) {
+		    		    if (!manaHandler.takeMana(manaCost, p)) {
 		    		    	plugin.actionBarClass.sendActionbar(p, ChatColor.RED + "Not Enough Mana!");
 		    		    	return;
 		    		    }

@@ -1,16 +1,20 @@
 package aws404.spells.functions;
 
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
-import aws404.spells.DataType;
+import aws404.spells.SpellScriptVariable;
 
-public class FunctionSendMessage extends Function{
+public class FunctionSendMessage extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, String[] args) {
-		String message = (String) plugin.convertType(args[0], DataType.STRING);
-		Player player = (Player) target;
+	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+		Player player;
+       	if (target.getType().equals(EntityType.PLAYER)) player = (Player) target;
+       	else return;
+       	
+		String message = args[0].getString();
 		
 		sendMessage(player, message);
 	}

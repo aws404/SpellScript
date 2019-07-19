@@ -18,7 +18,8 @@ public class CommandPrint extends AbstractCommand{
 			}
 			sender.sendMessage(ChatColor.BOLD + "" + ChatColor.UNDERLINE + "Script for the spell: " + args.get(0));
 			for (String line : lines) {
-				sender.sendMessage(line);
+				if (line.contentEquals("")) sender.sendMessage("COMMENT");
+				else sender.sendMessage(line);
 			}
 			return true;
 		}
@@ -44,5 +45,11 @@ public class CommandPrint extends AbstractCommand{
 	public Permission permission() {
 		return new Permission("spells.admin.print");
 	}
+	
+	@Override
+	public String description() {
+		return "Prints the specified spell file into the chat";
+	}
+
 
 }

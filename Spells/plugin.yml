@@ -1,12 +1,12 @@
 main: aws404.spells.Main
-name: Spells
+name: SpellScript
 version: 1.0
-api-version: 1.13
+api-version: 1.14
 author: aws404
 tab-complete: 0
 description: A plugin to introduce custom spells into the game
 commands:
   spells:
     description: Base Command for the spells plugin
-    usage: /spells
+    usage: /spells <subcommand>
 
