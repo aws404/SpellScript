@@ -1,7 +1,6 @@
 package aws404.spells;
 
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.craftbukkit.libs.jline.internal.Log;
 
 public class SpellScriptVariable {
 
