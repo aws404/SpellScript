@@ -9,13 +9,13 @@ import aws404.spells.SpellScriptVariable;
 public class FunctionSetHunger extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
 		Player player;
 		if (target.getType() == EntityType.PLAYER) player = (Player) target;
-		else return;
+		else return false;
 		Integer amount = args[0].getInt();
 		
-		setHunger(player, amount);
+		return setHunger(player, amount);
 	}
 
 	@Override

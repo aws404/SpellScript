@@ -8,11 +8,11 @@ import aws404.spells.SpellScriptVariable;
 public class FunctionAddRelativeMotion extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
 		Double x = args[0].getDouble();
 		Double y = args[1].getDouble();
 		
-		addRelativeMotion(target, x, y);
+		return addRelativeMotion(target, x, y);
 	}
 
 	@Override

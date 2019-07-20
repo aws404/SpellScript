@@ -9,14 +9,14 @@ import aws404.spells.SpellScriptVariable;
 public class FunctionAdjustMana extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
 		 Player player;
 		 
        	 if (target.getType().equals(EntityType.PLAYER)) player = (Player) target;
-       	 else return;
+       	 else return false;
 
 		Integer amount = args[0].getInt();
-		adjustMana(player, amount);
+		return adjustMana(player, amount);
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package aws404.spells;
 
+import java.util.ArrayList;
+
 import org.apache.commons.lang.StringUtils;
 
 public class SpellScriptVariable {
@@ -63,6 +65,16 @@ public class SpellScriptVariable {
 			plugin.sendError("UNABLE TO CONVERT '" + input + "' to type BOOLEAN");
 	    	return null;
 		}
+	}
+	
+	public static SpellScriptVariable[] decompileInstruction(String instruction) {
+    	ArrayList<SpellScriptVariable> rv = new ArrayList<SpellScriptVariable>();
+    	String[] args = StringUtils.substringBetween(instruction, "(", ")").split(",");
+    	for (String a : args) {
+    		rv.add(new SpellScriptVariable(a));
+    	}
+    	
+    	return rv.toArray(new SpellScriptVariable[rv.size()]);
 	}
 	
 	

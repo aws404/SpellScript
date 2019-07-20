@@ -3,6 +3,7 @@ package aws404.spells.commands;
 import java.util.ArrayList;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 
 import aws404.spells.FileManager;
@@ -28,5 +29,14 @@ public abstract class AbstractCommand {
     public abstract String description();
     
     public abstract Permission permission();
+    
+    protected boolean isValidPlayer(Player player) {
+    	if (player != null) {
+    		if (player.isOnline()) {
+    			return true;
+    		}
+    	}
+    	return false;
+    }
     
 }

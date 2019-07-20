@@ -9,19 +9,19 @@ import aws404.spells.SpellScriptVariable;
 public class FunctionPlaySound extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
        	Double xoff = args[0].getDouble();
        	Double yoff = args[1].getDouble();
        	Double zoff = args[2].getDouble();
        	Sound sound = Sound.valueOf(args[3].getString().toUpperCase());
 		if (sound == null) {
 			plugin.sendError(args[3].getDouble() + " is not a valid sound name!");
-			return;
+			return false;
 		}
 		Float volume = args[4].getFloat();
 		Float pitch = args[5].getFloat();
 		
-		playSound(target, xoff, yoff, zoff, sound, volume, pitch);
+		return playSound(target, xoff, yoff, zoff, sound, volume, pitch);
 	}
 
 	@Override

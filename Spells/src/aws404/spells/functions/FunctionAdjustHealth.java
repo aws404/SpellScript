@@ -8,10 +8,10 @@ import aws404.spells.SpellScriptVariable;
 public class FunctionAdjustHealth extends SpellScriptFunction {
 
 	@Override
-	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
 		Integer amount = args[0].getInt();
 		
-		adjustHealth(target, amount);
+		return adjustHealth(target, amount);
 	}
 
 	@Override

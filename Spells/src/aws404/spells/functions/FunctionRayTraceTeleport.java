@@ -16,10 +16,10 @@ import net.md_5.bungee.api.ChatColor;
 public class FunctionRayTraceTeleport extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
 		Double range = args[0].getDouble();
 		
-		rayTraceTeleport(target, range);		
+		return rayTraceTeleport(target, range);		
 	}
 
 	@Override
@@ -71,18 +71,13 @@ public class FunctionRayTraceTeleport extends SpellScriptFunction{
 	
     @SuppressWarnings("deprecation")
 	private boolean isSafeLocation(Location location) {
-    	//Method Credit: https://www.spigotmc.org/threads/safely-teleport-players.83205/#post-1546321
         Block feet = location.getBlock();
-        if (!feet.getType().isTransparent() && !feet.getLocation().add(0, 1, 0).getBlock().getType().isTransparent()) {
+        if (!feet.getType().isTransparent()) {
             return false; // not transparent (will suffocate)
         }
         Block head = feet.getRelative(BlockFace.UP);
         if (!head.getType().isTransparent()) {
             return false; // not transparent (will suffocate)
-        }
-        Block ground = feet.getRelative(BlockFace.DOWN);
-        if (!ground.getType().isSolid()) {
-            return false; // not solid
         }
         return true;
     }

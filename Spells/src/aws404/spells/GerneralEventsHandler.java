@@ -111,21 +111,21 @@ public class GerneralEventsHandler implements Listener{
 		    		    String foundValue = itemMeta.getPersistentDataContainer().get(key, PersistentDataType.STRING);
 		    		    Integer manaCost = fileManager.getSpells().getInt(foundValue + ".manaCost");
 		    		    String displayName = fileManager.getSpells().getString(foundValue + ".displayName");
-		    		    if (!manaHandler.takeMana(manaCost, p)) {
-		    		    	plugin.actionBarClass.sendActionbar(p, ChatColor.RED + "Not Enough Mana!");
-		    		    	return;
-		    		    }
-		    		    
-	    		    	plugin.actionBarClass.sendActionbar(p, ChatColor.WHITE + displayName + " Spell Cast " + ChatColor.GRAY + "[-" + manaCost + " Mana] ");
-	    		    	
-	    		    	
-		    		    if (plugin.debug) p.sendMessage("Spell Cast: " + foundValue + ", -" + manaCost + " mana");
 		    		    
 		    		    if (foundValue != "none" && foundValue != null) {
+		    		    	
+		    		    	//Self Selector
 		    		    	if (fileManager.getSpells().getString(foundValue + ".target").equalsIgnoreCase("self")) {
+	    		    			SpellScriptSpell spell = new SpellScriptSpell(foundValue, p,p, true);
+		    		    		if (spell.castWithMana(manaCost)) {
+		    		    			manaHandler.takeMana(manaCost, p);
+		    		    			plugin.actionBarClass.sendActionbar(p, ChatColor.WHITE + displayName + " Spell Cast " + ChatColor.GRAY + "[-" + manaCost + " Mana] ");
+    		    		    		
+		    		    		}
+		    		    	} else 
 		    		    		
-		    		    		plugin.castSpell(p, p, foundValue);
-		    		    	} else if (fileManager.getSpells().getString(foundValue + ".target").equalsIgnoreCase("raytrace")) {
+		    		    	//raytrace Selector
+		    		    	if (fileManager.getSpells().getString(foundValue + ".target").equalsIgnoreCase("raytrace")) {
 		    		    		RayTraceResult rt = p.rayTraceBlocks(20, FluidCollisionMode.NEVER);
 		    		    		Location loc1;
 		    		    		if (rt == null) {
@@ -150,47 +150,65 @@ public class GerneralEventsHandler implements Listener{
 		    		    			} else {
 		    		    				((ArmorStand) dummy).setVisible(false);
 		    		    			}
-		    		    			List<LivingEntity> nearbyList = new ArrayList<LivingEntity>();
-		    		    			List<Entity> nearby3 = dummy.getNearbyEntities(3, 3, 3);
-		    		    			if (nearby3.contains(p)) nearby3.remove(p);
-		    		    			for (Entity entity : nearby3) {	
-		    		    				if (entity.getType().isAlive()) nearbyList.add((LivingEntity) entity);
-		    		    			}
 		    		    			
 		    		    			
-		    		    			if (nearbyList.isEmpty()) {
+		    		    			ArrayList<LivingEntity> list = new ArrayList<LivingEntity>();
+		    		    			addNearbys(dummy, p, list, 3);
+		    		    			
+		    		    			
+		    		    			if (list.isEmpty()) {
 		    		    				//Check for radius of 5
-		    		    				List<Entity> nearby5 = dummy.getNearbyEntities(5, 5, 5);
-		    		    				if (nearby5.contains(p)) nearby5.remove(p);
-		    		    				for (Entity entity : nearby5) {	
-			    		    				if (entity.getType().isAlive()) nearbyList.add((LivingEntity) entity);
-			    		    			}
+		    		    				addNearbys(dummy, p, list, 5);
+		    		    				
 
-		    		    				if (nearbyList.isEmpty()) {
+		    		    				if (list.isEmpty()) {
 		    	   		    				//Check for radius of 7
-			    		    				List<Entity> nearby7 = dummy.getNearbyEntities(7, 7, 7);
-			    		    				if (nearby7.contains(p)) nearby7.remove(p);
-			    		    				for (Entity entity : nearby7) {	
-				    		    				if (entity.getType().isAlive()) nearbyList.add((LivingEntity) entity);
-				    		    			}
-				    		    			
+		    		    					addNearbys(dummy, p, list, 7);
 
-		    		    					if (nearbyList.isEmpty()) {
+		    		    					
+		    		    					if (list.isEmpty()) {
+		    		    						
 		    		    						//No Living Entities nearby : use dummy
 		    		    						if (plugin.debug) p.sendMessage("using dummy");
-			    		    					plugin.castSpell((LivingEntity) dummy, p, foundValue);
+		    		    						
+				    		    				SpellScriptSpell spell = new SpellScriptSpell(foundValue, p, (LivingEntity) dummy, true);
+								    		    if (spell.castWithMana(manaCost)) {
+								    		    	manaHandler.takeMana(manaCost, p);
+								    		    	plugin.actionBarClass.sendActionbar(p, ChatColor.WHITE + displayName + " Spell Cast " + ChatColor.GRAY + "[-" + manaCost + " Mana] ");
+						    		    		    
+								    		    } 
+								    		    
+								    		    
 		    		    					} else {
-		    		    						if (plugin.debug) p.sendMessage("found nearby dummy");
-				    		    				plugin.castSpell((LivingEntity) nearby7.get(0), p, foundValue);
+		    		    						if (plugin.debug) p.sendMessage("found nearby dummy 7");
+		    		    						
+					    		    			SpellScriptSpell spell = new SpellScriptSpell(foundValue, p, (LivingEntity) list.get(0), true);
+								    		    if (spell.castWithMana(manaCost)) {
+								    		    	manaHandler.takeMana(manaCost, p);
+								    		    	plugin.actionBarClass.sendActionbar(p, ChatColor.WHITE + displayName + " Spell Cast " + ChatColor.GRAY + "[-" + manaCost + " Mana] ");
+						    		    		   
+								    		    }
 		    		    					}
 		    		    				} else {
-		    		    					if (plugin.debug) p.sendMessage("found nearby dummy");
-			    		    				plugin.castSpell((LivingEntity) nearby5.get(0), p, foundValue);
+		    		    					if (plugin.debug) p.sendMessage("found nearby dummy 5");
+		    		    					
+				    		    			SpellScriptSpell spell = new SpellScriptSpell(foundValue, p, (LivingEntity) list.get(0), true);
+					    		    		if (spell.castWithMana(manaCost)) {
+					    		    			manaHandler.takeMana(manaCost, p);
+					    		    			plugin.actionBarClass.sendActionbar(p, ChatColor.WHITE + displayName + " Spell Cast " + ChatColor.GRAY + "[-" + manaCost + " Mana] ");
+			    		    		    		
+					    		    		}
 		    		    				}
 
 		    		    			} else {
-		    		    				if (plugin.debug) p.sendMessage("found nearby dummy");
-		    		    				plugin.castSpell((LivingEntity) nearby3.get(0), p, foundValue);
+		    		    				if (plugin.debug) p.sendMessage("found nearby dummy 3");
+		    		    				
+			    		    			SpellScriptSpell spell = new SpellScriptSpell(foundValue, p, (LivingEntity) list.get(0), true);
+			    		    			if (spell.castWithMana(manaCost)) {
+			    		    				manaHandler.takeMana(manaCost, p);
+			    		    				plugin.actionBarClass.sendActionbar(p, ChatColor.WHITE + displayName + " Spell Cast " + ChatColor.GRAY + "[-" + manaCost + " Mana] ");
+			    		    			}
+		    		    		    		   
 		    		    			}
 		    		    			dummy.remove();
 		    		    		}
@@ -210,6 +228,14 @@ public class GerneralEventsHandler implements Listener{
 				}
 			}
 		}
+	
+	private void addNearbys(Entity dummy, Player p, ArrayList<LivingEntity> list, int range) {
+		List<Entity> nearby = dummy.getNearbyEntities(range, range, range);
+		if (nearby.contains(p)) nearby.remove(p);
+		for (Entity entity : nearby) {	
+			if (entity.getType().isAlive()) list.add((LivingEntity) entity);
+		}
+	}
 	
 	
 

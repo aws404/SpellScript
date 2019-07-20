@@ -10,10 +10,10 @@ import aws404.spells.SpellScriptVariable;
 public class FunctionSetFrozen extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
 		Boolean value = args[0].getBoolean();
 		
-		setFrozen(target, value);
+		return setFrozen(target, value);
 	}
 
 	@Override

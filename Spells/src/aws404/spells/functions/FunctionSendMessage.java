@@ -9,14 +9,14 @@ import aws404.spells.SpellScriptVariable;
 public class FunctionSendMessage extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
 		Player player;
        	if (target.getType().equals(EntityType.PLAYER)) player = (Player) target;
-       	else return;
+       	else return false;
        	
 		String message = args[0].getString();
 		
-		sendMessage(player, message);
+		return sendMessage(player, message);
 	}
 
 	@Override

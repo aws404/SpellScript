@@ -8,12 +8,12 @@ import aws404.spells.SpellScriptVariable;
 public class FunctionTeleportRelative extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
     	double x = args[0].getDouble();
     	double y = args[1].getDouble();
     	double z = args[2].getDouble();
 		
-    	teleportRelative(target, x, y, z);
+    	return teleportRelative(target, x, y, z);
 	}
 
 	@Override

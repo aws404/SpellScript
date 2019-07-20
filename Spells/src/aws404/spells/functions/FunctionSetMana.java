@@ -9,16 +9,16 @@ import aws404.spells.SpellScriptVariable;
 public class FunctionSetMana extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
 		Player player;
 		if (target.getType().equals(EntityType.PLAYER)) {
     		player = (Player) target;
 		} else {
-			return;
+			return false;
 		}
 		Integer amount = args[0].getInt();
 		
-		setMana(player, amount);
+		return setMana(player, amount);
 	}
 
 	@Override

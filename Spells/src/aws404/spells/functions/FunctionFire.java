@@ -7,10 +7,10 @@ import aws404.spells.SpellScriptVariable;
 public class FunctionFire extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
 		Integer time = args[0].getInt();
 		
-		fire(target, time);
+		return fire(target, time);
 	}
 
 	@Override

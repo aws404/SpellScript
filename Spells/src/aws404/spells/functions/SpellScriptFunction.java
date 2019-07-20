@@ -14,7 +14,7 @@ public abstract class SpellScriptFunction {
 	public SpellScriptFunction() {
 	}
 
-    public abstract void runFunction(LivingEntity target, SpellScriptVariable[] args);
+    public abstract boolean runFunction(LivingEntity target, SpellScriptVariable[] args);
 
     public abstract String name();
 	

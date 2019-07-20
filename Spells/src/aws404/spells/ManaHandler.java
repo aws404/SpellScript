@@ -26,8 +26,6 @@ public class ManaHandler {
 		this.plugin = plugin;
 		this.fileManager = plugin.fileManager;
 		
-		System.out.println("ENABLING MANA");
-		
 		manaLevels = new HashMap<Player,Integer>();
 		manaBars = new HashMap<Player,BossBar>();
         manaRegenAmount = fileManager.getConfig().getInt("mana-regen-per");

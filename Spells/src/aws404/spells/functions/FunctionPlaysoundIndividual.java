@@ -12,10 +12,10 @@ import aws404.spells.SpellScriptVariable;
 public class FunctionPlaysoundIndividual extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target,  SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target,  SpellScriptVariable[] args) {
 		Player player;
        	if (target.getType().equals(EntityType.PLAYER)) player = (Player) target;
-       	else return;
+       	else return false;
        	
        	Double xoff = args[0].getDouble();
        	Double yoff = args[1].getDouble();
@@ -23,12 +23,12 @@ public class FunctionPlaysoundIndividual extends SpellScriptFunction{
        	Sound sound = Sound.valueOf(args[3].getString().toUpperCase());
 		if (sound == null) {
 			plugin.sendError(args[3].getDouble() + " is not a valid sound name!");
-			return;
+			return false;
 		}
 		Float volume = args[4].getFloat();
 		Float pitch = args[5].getFloat();
 		
-		playSoundPlayer(player, xoff, yoff, zoff, sound, volume, pitch);
+		return playSoundPlayer(player, xoff, yoff, zoff, sound, volume, pitch);
 	}
 
 	@Override

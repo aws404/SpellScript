@@ -21,7 +21,7 @@ public class FunctionKick extends SpellScriptFunction {
 	
 	//This is the function that will be ran when the function is called by a script 
 	@Override
-	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
 		//Arguments are passed in as SpellScriptVariableTypesbthese can 
 		// be easily converted to the desird type by using the provided functions
 		//Examples: args[0].getBoolean(); args[0].getLong(); ect
@@ -33,8 +33,14 @@ public class FunctionKick extends SpellScriptFunction {
 			Player player  = (Player) target;
 			
 			player.kickPlayer("You Have Been Kicked! \n Reason: " + number + ". " + reason);
+			
+			//The returned value determines is a spell was sucessfull or not
+			//If a function returns false the spell will be classed as not suceessfull
+			//this means the caster will not have mana taken and the script will stop
+			return true;
 		} else {
 			target.teleport(new Location(target.getWorld(), 0, -10, 0));
+			return true;
 		}
 	}
 

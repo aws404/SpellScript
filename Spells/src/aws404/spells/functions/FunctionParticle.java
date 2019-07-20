@@ -8,7 +8,7 @@ import aws404.spells.SpellScriptVariable;
 public class FunctionParticle extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
 		double x = target.getLocation().getX() + args[0].getDouble();
     	double y = target.getLocation().getY() + args[1].getDouble();
     	double z = target.getLocation().getZ() + args[2].getDouble();
@@ -19,7 +19,7 @@ public class FunctionParticle extends SpellScriptFunction{
     	double speed = args[7].getDouble();
     	int count = args[8].getInt(); 
 		
-    	particle(target, particle, x, y, z, xoff, yoff, zoff, speed, count);
+    	return particle(target, particle, x, y, z, xoff, yoff, zoff, speed, count);
 	}
 
 	@Override

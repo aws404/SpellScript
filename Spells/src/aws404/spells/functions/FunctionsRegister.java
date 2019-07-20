@@ -41,6 +41,16 @@ public class FunctionsRegister {
     	return true;
     }
     
+    public boolean deRegisterCustomFunction(SpellScriptFunction functionClass) {
+    	if (this.functions.contains(functionClass)) {
+    		this.functions.remove(functionClass);
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+    
+    
     public SpellScriptFunction getFunction(String functionName) {
     	Iterator<SpellScriptFunction> subcommands = this.functions.iterator();
 

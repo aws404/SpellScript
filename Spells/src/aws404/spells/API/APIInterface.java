@@ -43,21 +43,44 @@ public interface APIInterface {
 	
 	/**
 	* Casts the specified spell using the target player as the target and caster;
+	* @param spell - the spell file to use (excluding the .spell)
 	* @param target - the player that will be used as the caster and target
+	* @return if the spell was sucessfull or not
 	*/
-	public void castSpell(String spellFile, LivingEntity target);
+	public boolean castSpell(String spellFile, LivingEntity target);
+	
+	/**
+	* Casts the specified spell using the target player as the target and caster;
+	* @param spell - the spell file to use (excluding the .spell)
+	* @param target - the player that will be used as the caster and target
+	* @param isWandCasted - whether the spell should be counted as casted from a wand
+	* @return if the spell was sucessfull or not
+	*/
+	public boolean castSpell(String spellFile, LivingEntity target, Boolean isWandCasted);
 	
 	/**
 	* Casts the specified spell using the target and caster players
+	* @param spell - the spell file to use (excluding the .spell)
 	* @param target - the player that will be used as the target
 	* @param caster - the player that will be used as the caster
+	* @param isWandCasted - whether the spell should be counted as casted from a wand
+	* @return if the spell was sucessfull or not
 	*/
-	public void castSpell(String spellFile, LivingEntity target, LivingEntity caster);
+	public boolean castSpell(String spellFile, LivingEntity target, LivingEntity caster, Boolean isWandCasted);
 	
 	/**
 	* Registers a new function to the function register. The function must be a class that extends the SpellScriptFunction class
 	* @param spellScriptFunctionClass - the class which extends SpellScriptFunction and contains the required methods
+	* @return whether the addition was sucessfull
 	*/
 	public boolean registerFunction(SpellScriptFunction spellScriptFunctionClass);
+	
+	/**
+	* Un register a function from the function register. The function must be a class that extends the SpellScriptFunction class
+	* @param spellScriptFunctionClass - the class which extends SpellScriptFunction that you wish to remove
+	* @return whether the removal was sucessfull
+	* @return false if the function wasn't registered in the first place
+	*/
+	public boolean unRegisterFunction(SpellScriptFunction spellScriptFunctionClass);
 	
 }

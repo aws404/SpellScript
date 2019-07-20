@@ -28,7 +28,7 @@ public class CommandMana extends AbstractCommand{
 			return false;
 		}
 		
-		if (!plugin.isValid(player)) {
+		if (!isValidPlayer(player)) {
 			sender.sendMessage("Player not found");
 			return true;
 		} else {

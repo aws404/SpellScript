@@ -9,17 +9,17 @@ import aws404.spells.SpellScriptVariable;
 public class FunctionEffect extends SpellScriptFunction {
 
 	@Override
-	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
 		PotionEffectType type = PotionEffectType.getByName(args[0].getString().toUpperCase());
 		if (type == null) {
 			plugin.sendError(args[0].getString() + " is not a valid potion effect!");
-			return;
+			return false;
 		}
 		int durration = args[1].getInt();
 		int level = args[2].getInt();
 		boolean hideParticles = args[3].getBoolean();
 		
-		effect(target, type, durration, level, hideParticles);
+		return effect(target, type, durration, level, hideParticles);
 	}
 
 	@Override

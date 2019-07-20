@@ -7,10 +7,10 @@ import aws404.spells.SpellScriptVariable;
 public class FunctionSetInvulnerable extends SpellScriptFunction{
 
 	@Override
-	public void runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
 		Boolean value = args[0].getBoolean();
 		
-		setInvulnerable(target, value);
+		return setInvulnerable(target, value);
 	}
 
 	@Override
