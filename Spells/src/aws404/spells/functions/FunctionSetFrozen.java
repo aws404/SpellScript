@@ -5,12 +5,12 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import aws404.spells.SpellScriptVariable;
+import aws404.spells.SpellScriptArgument;
 
 public class FunctionSetFrozen extends SpellScriptFunction{
 
 	@Override
-	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptArgument[] args) {
 		Boolean value = args[0].getBoolean();
 		
 		return setFrozen(target, value);

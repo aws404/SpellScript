@@ -3,12 +3,12 @@ package aws404.spells.functions;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
-import aws404.spells.SpellScriptVariable;
+import aws404.spells.SpellScriptArgument;
 
 public class FunctionAddMotion extends SpellScriptFunction{
 
 	@Override
-	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptArgument[] args) {
 		double x = args[0].getDouble();
 		double y = args[1].getDouble();
 		double z = args[2].getDouble();

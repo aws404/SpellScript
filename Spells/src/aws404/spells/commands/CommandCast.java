@@ -48,7 +48,7 @@ public class CommandCast extends AbstractCommand{
 		sender.sendMessage("Casting Spell: " + spellName + ", with caster: " + caster.getName() + " and target " + target.getName());
 		SpellScriptSpell spell = new SpellScriptSpell(spellName, caster, target, false);
 		spell.cast();
-		sender.sendMessage("Spell Sucessfull: " + spell.wasSucessfull());
+		sender.sendMessage("Spell Sucessfull: " + spell.wasSuccessful());
 		
 		return true;
 	}

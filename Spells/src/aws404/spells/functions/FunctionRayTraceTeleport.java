@@ -10,13 +10,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
-import aws404.spells.SpellScriptVariable;
+import aws404.spells.SpellScriptArgument;
 import net.md_5.bungee.api.ChatColor;
 
 public class FunctionRayTraceTeleport extends SpellScriptFunction{
 
 	@Override
-	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptArgument[] args) {
 		Double range = args[0].getDouble();
 		
 		return rayTraceTeleport(target, range);		

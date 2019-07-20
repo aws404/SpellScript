@@ -4,12 +4,12 @@ import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.LivingEntity;
-import aws404.spells.SpellScriptVariable;
+import aws404.spells.SpellScriptArgument;
 
 public class FunctionPlaySound extends SpellScriptFunction{
 
 	@Override
-	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptArgument[] args) {
        	Double xoff = args[0].getDouble();
        	Double yoff = args[1].getDouble();
        	Double zoff = args[2].getDouble();

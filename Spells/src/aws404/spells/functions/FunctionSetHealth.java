@@ -2,12 +2,12 @@ package aws404.spells.functions;
 
 import org.bukkit.entity.LivingEntity;
 
-import aws404.spells.SpellScriptVariable;
+import aws404.spells.SpellScriptArgument;
 
 public class FunctionSetHealth extends SpellScriptFunction{
 
 	@Override
-	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptArgument[] args) {
 		Integer amount = args[0].getInt();
 		
 		return setHealth(target, amount);

@@ -3,12 +3,12 @@ package aws404.spells.functions;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 
-import aws404.spells.SpellScriptVariable;
+import aws404.spells.SpellScriptArgument;
 
 public class FunctionTeleportRelative extends SpellScriptFunction{
 
 	@Override
-	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptArgument[] args) {
     	double x = args[0].getDouble();
     	double y = args[1].getDouble();
     	double z = args[2].getDouble();

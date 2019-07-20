@@ -4,12 +4,12 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import aws404.spells.SpellScriptVariable;
+import aws404.spells.SpellScriptArgument;
 
 public class FunctionEffect extends SpellScriptFunction {
 
 	@Override
-	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptArgument[] args) {
 		PotionEffectType type = PotionEffectType.getByName(args[0].getString().toUpperCase());
 		if (type == null) {
 			plugin.sendError(args[0].getString() + " is not a valid potion effect!");

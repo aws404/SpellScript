@@ -30,7 +30,13 @@ public class SpellScriptSpell {
 	private Boolean castedByWand;
 	private String[] lines;
 	
-	
+	/**
+	 * Create a new {@link SpellScriptSpell} element
+	 * @param spellName the name of the spell
+	 * @param caster the {@link LivingEntity} to be the caster
+	 * @param target the {@link LivingEntity} to be the target
+	 * @param castedByWand whether the spell should considered wand created
+	 */
 	public SpellScriptSpell(String spellName, LivingEntity caster, LivingEntity target, Boolean castedByWand) {
 		this.spellName = spellName;
 		this.caster = caster;
@@ -39,6 +45,11 @@ public class SpellScriptSpell {
 		this.lines = plugin.spellFiles.get(spellName);
 	}
 	
+	/**
+	 * Only casts the spell if the player has enough mana, does not take mana
+	 * @param requiredMana the amount of mana required
+	 * @return false if the player does not have enough mana or the spell failed, true if spell was cast sucessfully
+	 */
 	public boolean castWithMana(Integer requiredMana) {
 		Player player;
 		if (caster.getType() == EntityType.PLAYER) player = (Player) caster;
@@ -59,6 +70,10 @@ public class SpellScriptSpell {
 		}
 	}
 	
+	/**
+	 * Casts the spell element
+	 * @return if the spell was sucessfull or not
+	 */
 	public boolean cast() {
     	EntitySpellCastEvent event = new EntitySpellCastEvent(spellName, target, caster, castedByWand);
     	Bukkit.getPluginManager().callEvent(event);
@@ -71,11 +86,19 @@ public class SpellScriptSpell {
     	return this.wasSucessfull;
 	}
 	
-	public void setSucessfull(Boolean value) {
+	/**
+	 * Sets if the spell was successful or not
+	 * @param value new wasSuccessful value
+	 */
+	public void setSuccessful(Boolean value) {
 		this.wasSucessfull = value;
 	}
 	
-	public Boolean wasSucessfull() {
+	/**
+	 * Whether the spell was successful or not
+	 * @return whether the spell was sucessful or not
+	 */
+	public Boolean wasSuccessful() {
 		return this.wasSucessfull;
 	}
 	
@@ -102,7 +125,7 @@ public class SpellScriptSpell {
 		    	  if (plugin.debug) target.sendMessage(instruction);
 		    	  
 		    	  if (instruction.contains("wait")) {
-		    		  Long arg = SpellScriptVariable.decompileInstruction(instruction)[0].getLong();
+		    		  Long arg = SpellScriptArgument.decompileInstruction(instruction)[0].getLong();
 		    		  Long amount = arg *2L/100L;;
 		    	        BukkitScheduler scheduler = plugin.getServer().getScheduler();
 		    	        scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
@@ -156,7 +179,7 @@ public class SpellScriptSpell {
     		
     		
 			String instruction = segments[1];
-			SpellScriptVariable[] args = SpellScriptVariable.decompileInstruction(instruction);
+			SpellScriptArgument[] args = SpellScriptArgument.decompileInstruction(instruction);
 			String functionName = instruction.substring(0, instruction.indexOf("("));
 			SpellScriptFunction function = functionsRegister.getFunction(functionName);
 			if (plugin.debug) caster.sendMessage(ChatColor.BOLD + "Script: " + instruction);

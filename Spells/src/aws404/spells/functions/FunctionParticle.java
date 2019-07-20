@@ -3,12 +3,12 @@ package aws404.spells.functions;
 import org.bukkit.Particle;
 import org.bukkit.entity.LivingEntity;
 
-import aws404.spells.SpellScriptVariable;
+import aws404.spells.SpellScriptArgument;
 
 public class FunctionParticle extends SpellScriptFunction{
 
 	@Override
-	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptArgument[] args) {
 		double x = target.getLocation().getX() + args[0].getDouble();
     	double y = target.getLocation().getY() + args[1].getDouble();
     	double z = target.getLocation().getZ() + args[2].getDouble();
