@@ -34,6 +34,7 @@ public class FunctionsRegister {
         this.functions.add(new FunctionSetInvulnerable());
         this.functions.add(new FunctionSetMana());
         this.functions.add(new FunctionTeleportRelative());
+        this.functions.add(new FunctionExecute());
     }
     
     public boolean registerCustomFunction(SpellScriptFunction functionClass) {
@@ -62,6 +63,6 @@ public class FunctionsRegister {
             }
         }
         
-        return null;
+        return new FunctionStop();
     }
 }

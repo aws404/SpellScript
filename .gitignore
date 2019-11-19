@@ -4,3 +4,7 @@ Spells/.project
 Spells/.externalToolBuilders
 Spells/.classpath
 Spells/.settings
+/.metadata/
+Spells/bin
+Server
+*.ant

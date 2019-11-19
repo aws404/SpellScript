@@ -108,15 +108,25 @@ public class SpellScriptSpell {
     		return;
     	}
     	int newLine = line +1;
-    	String[] segments = lines[line].split("\\.", 2);
-		String selector = segments[0];
+    	
+    	String lineString = lines[line];
+    	
+    	//exclude comments
+    	int commentStart = lineString.indexOf("//");
+    	if (commentStart != -1) {
+    		lineString = lineString.substring(0, commentStart);
+    	}
+    	
 
-
-		//If no selector then it is a comment
-		if (selector.contentEquals("")) {
+		//Exclude blank lines
+		if (lineString.trim().contentEquals("")) {
 			doActionRecursively(newLine);
     	    return;
 		}
+    	
+    	String[] segments = lineString.split("\\.", 2);
+		String selector = segments[0];
+
 
 		//Spell Selector
     	if (selector.contentEquals("spell")) {
@@ -152,28 +162,35 @@ public class SpellScriptSpell {
     		
     		if(!selector.contains("[")) {
     			
-    			
     			//Targeting Single Entity
-    			if (selector.equalsIgnoreCase("target")) spellTarget.add(target);
-    			if (selector.equalsIgnoreCase("caster")) spellTarget.add(caster);
+    			switch(selector.toLowerCase()) {
+	    			case "target": spellTarget.add(target);
+	    			case "caster": spellTarget.add(caster);
+    			}
+    			
     		} else {
     			
     			
-    			//Radius Target - target
+    			//Radius Target
     			int radius = Integer.parseInt(StringUtils.substringBetween(selector, "[", "]"));
-    			if (selector.contains("target")) {
-    				List<Entity> nearby = target.getNearbyEntities(radius, radius, radius);
-    				for (Entity e : nearby) {
-    					if (e.getType().isAlive() && !e.equals(caster)) spellTarget.add((LivingEntity) e);
-    				}
-    			}
     			
-    			//Radius target - caster
-    			if (selector.contains("caster")) {
-    				List<Entity> nearby = caster.getNearbyEntities(radius, radius, radius);
-    				for (Entity e : nearby) {
-    					if (e.getType().isAlive() && !e.equals(caster)) spellTarget.add((LivingEntity) e);
-    				}
+    			
+    			switch(selector.toLowerCase()) {
+	    			case "target": {
+	    				List<Entity> nearby = target.getNearbyEntities(radius, radius, radius);
+	    				for (Entity e : nearby) {
+	    					if (e.getType().isAlive() && !e.equals(caster) && !e.equals(target)) 
+	    						spellTarget.add((LivingEntity) e);
+	    				}
+	    			}
+	    			
+	    			case "caster": {
+	    				List<Entity> nearby = caster.getNearbyEntities(radius, radius, radius);
+	    				for (Entity e : nearby) {
+	    					if (e.getType().isAlive() && !e.equals(caster)) 
+	    						spellTarget.add((LivingEntity) e);
+	    				}	
+	    			}
     			}
     		}
     		
@@ -182,6 +199,15 @@ public class SpellScriptSpell {
 			SpellScriptArgument[] args = SpellScriptArgument.decompileInstruction(instruction);
 			String functionName = instruction.substring(0, instruction.indexOf("("));
 			SpellScriptFunction function = functionsRegister.getFunction(functionName);
+			
+			if (function.name().equalsIgnoreCase("stop")) {
+				this.wasSucessfull = false;
+				plugin.sendError("On line "+ newLine + ", " + functionName + " is an unkown function");
+				return;
+			}
+
+			
+			
 			if (plugin.debug) caster.sendMessage(ChatColor.BOLD + "Script: " + instruction);
 			if (plugin.debug) caster.sendMessage(ChatColor.BOLD + "Function Name: " + function.name());
 			if (plugin.debug) caster.sendMessage(ChatColor.ITALIC + "Arguments: " + Arrays.toString(args));
@@ -189,12 +215,13 @@ public class SpellScriptSpell {
 			
     		for (LivingEntity currentTarget : spellTarget) {
     			if (plugin.debug) caster.sendMessage("Target: " + currentTarget.toString());;
-    			if (!function.runFunction(currentTarget, args)) this.wasSucessfull = false;		
+    			this.wasSucessfull = function.runFunction(currentTarget, args);		
     		}
 			if (plugin.debug) caster.sendMessage(" ");
 			
 			//Recurse
-			if (this.wasSucessfull) doActionRecursively(newLine);
+			if (this.wasSucessfull) 
+				doActionRecursively(newLine);
     	    return;
 		    	  
     	}
