@@ -46,12 +46,12 @@ public class ManaHandler {
     private void doManaRegen() {
    	 Collection<? extends Player> playerList = Bukkit.getOnlinePlayers();
         
-        for (Player p : playerList) {
+        playerList.forEach(p -> {
         	Integer newMana = manaLevels.get(p)+manaRegenAmount;
         	if (newMana>maxMana) newMana = maxMana;
         	
         	manaLevels.replace(p, newMana);
-        }
+        });
    }
     
     
@@ -68,7 +68,7 @@ public class ManaHandler {
     private void updateManaBars() {
     	Collection<? extends Player> playerList = Bukkit.getOnlinePlayers();
         
-        for (Player p : playerList) {
+    	playerList.forEach(p -> {
         	Integer mana = manaLevels.get(p);
         	
         	Double manaBarValue = (double) mana / (double) maxMana;
@@ -82,7 +82,7 @@ public class ManaHandler {
         		ManaBar.addPlayer(p);
         	}
         	ManaBar.setProgress(manaBarValue);
-        }
+        });
     }
     
     public void giveMana(Integer amount, Player p) {

@@ -8,3 +8,7 @@ Spells/.settings
 Spells/bin
 Server
 *.ant
+/WynnSpells/
+/BreedTime/
+/SpellScriptExploration/
+SpellScriptAPIExample/.classpath

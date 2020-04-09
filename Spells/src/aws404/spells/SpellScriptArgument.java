@@ -108,4 +108,8 @@ public class SpellScriptArgument {
 	}
 	
 	
+	public String literalValue() {
+		return input;
+	}
+	
 }

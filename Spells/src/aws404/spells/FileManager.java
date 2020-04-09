@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.libs.jline.internal.Log;
 
 public class FileManager {
 
@@ -22,7 +21,7 @@ public class FileManager {
 	
 	private File spellsFolder;
 	
-	static Main plugin;
+	 Main plugin;
 	
 	//General Configs
     public FileManager(Main pluginX) {
@@ -94,7 +93,7 @@ public class FileManager {
         plugin.spellFiles = getSpellFiles();
 	    config = YamlConfiguration.loadConfiguration(configFile);
 	    spells = YamlConfiguration.loadConfiguration(spellsFile);
-	    Log.info("Configurations and Spells Reloaded");
+	    plugin.getLogger().info("Configurations and Spells Reloaded");
 
     }
     
@@ -141,7 +140,7 @@ public class FileManager {
 
 	    try {
 	        while((line = reader.readLine()) != null) {
-	        	if (!line.startsWith("//")) {
+	        	if (!(line.startsWith("//") || line.trim().contentEquals(""))) {
 	        		stringBuilder.append(line);
 	        	} else {
 	        		stringBuilder.append(";");

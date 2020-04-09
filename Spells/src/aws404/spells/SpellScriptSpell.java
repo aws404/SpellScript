@@ -1,11 +1,11 @@
 package aws404.spells;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -46,6 +46,27 @@ public class SpellScriptSpell {
 	}
 	
 	/**
+	 * Create a new {@link SpellScriptSpell} element
+	 * @param spellName the name of the spell
+	 * @param caster the {@link LivingEntity} to be the caster
+	 * @param castedByWand whether the spell should considered wand created
+	 */
+	public SpellScriptSpell(String spellName, LivingEntity caster, Boolean castedByWand) {
+		this.spellName = spellName;
+		this.caster = caster;
+		this.lines = plugin.spellFiles.get(spellName);
+		this.castedByWand = castedByWand;
+	}
+	
+	/**
+	 * Change the target
+	 * @param target the {@link LivingEntity} to be the target
+	 */
+	public void setTarget(LivingEntity target) {
+		this.target = target;
+	}
+	
+	/**
 	 * Only casts the spell if the player has enough mana, does not take mana
 	 * @param requiredMana the amount of mana required
 	 * @return false if the player does not have enough mana or the spell failed, true if spell was cast sucessfully
@@ -58,15 +79,19 @@ public class SpellScriptSpell {
 	    	EntitySpellCastEvent event = new EntitySpellCastEvent(spellName, target, caster, castedByWand);
 	    	Bukkit.getPluginManager().callEvent(event);
 	    	if (!event.isCancelled()) {
-	    		this.wasSucessfull = true;
+	    		wasSucessfull = true;
 	        	doActionRecursively(0);  
+	        	if (wasSucessfull) {
+	        		manaHandler.takeMana(requiredMana, player);
+	        	}
 	    	} else {
-	    		this.wasSucessfull = false;
+	    		wasSucessfull = false;
 	    	}
-	    	return this.wasSucessfull;
+	    	return wasSucessfull;
 		} else {
 			plugin.actionBarClass.sendActionbar(player, ChatColor.RED + "Not Enough Mana!");
-	    	return false;
+	    	player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1, 1);
+			return false;
 		}
 	}
 	
@@ -102,6 +127,7 @@ public class SpellScriptSpell {
 		return this.wasSucessfull;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void doActionRecursively(Integer line) {
 		if (lines.length <= line) {
     		if (plugin.debug) target.sendMessage("Done");
@@ -117,12 +143,6 @@ public class SpellScriptSpell {
     		lineString = lineString.substring(0, commentStart);
     	}
     	
-
-		//Exclude blank lines
-		if (lineString.trim().contentEquals("")) {
-			doActionRecursively(newLine);
-    	    return;
-		}
     	
     	String[] segments = lineString.split("\\.", 2);
 		String selector = segments[0];
@@ -161,36 +181,28 @@ public class SpellScriptSpell {
     		List<LivingEntity> spellTarget = new ArrayList<LivingEntity>();
     		
     		if(!selector.contains("[")) {
-    			
     			//Targeting Single Entity
-    			switch(selector.toLowerCase()) {
-	    			case "target": spellTarget.add(target);
-	    			case "caster": spellTarget.add(caster);
-    			}
+    			if (selector.toLowerCase().contentEquals("target")) spellTarget.add(target);
     			
-    		} else {
-    			
-    			
+       			if (selector.toLowerCase().contentEquals("caster")) spellTarget.add(caster);	
+    		}
+    		
+    		if (selector.contains("[")) {
     			//Radius Target
     			int radius = Integer.parseInt(StringUtils.substringBetween(selector, "[", "]"));
     			
+    			if (selector.contains("target")) {
+    				List<Entity> nearby = target.getNearbyEntities(radius, radius, radius);
+    				nearby.removeIf((e) -> (!e.getType().isAlive() || e.equals(caster) || e.equals(target)));
+    				List<LivingEntity> livingnearby = (List<LivingEntity>) ((Object) nearby);
+    				spellTarget.addAll(livingnearby);
+    			}
     			
-    			switch(selector.toLowerCase()) {
-	    			case "target": {
-	    				List<Entity> nearby = target.getNearbyEntities(radius, radius, radius);
-	    				for (Entity e : nearby) {
-	    					if (e.getType().isAlive() && !e.equals(caster) && !e.equals(target)) 
-	    						spellTarget.add((LivingEntity) e);
-	    				}
-	    			}
-	    			
-	    			case "caster": {
-	    				List<Entity> nearby = caster.getNearbyEntities(radius, radius, radius);
-	    				for (Entity e : nearby) {
-	    					if (e.getType().isAlive() && !e.equals(caster)) 
-	    						spellTarget.add((LivingEntity) e);
-	    				}	
-	    			}
+    			if (selector.contains("caster")) {
+    				List<Entity> nearby = caster.getNearbyEntities(radius, radius, radius);
+    				nearby.removeIf((e) -> (!e.getType().isAlive() || e.equals(caster) || e.equals(target)));
+    				List<LivingEntity> livingnearby = (List<LivingEntity>) ((Object) nearby);
+    				spellTarget.addAll(livingnearby);
     			}
     		}
     		
@@ -210,13 +222,15 @@ public class SpellScriptSpell {
 			
 			if (plugin.debug) caster.sendMessage(ChatColor.BOLD + "Script: " + instruction);
 			if (plugin.debug) caster.sendMessage(ChatColor.BOLD + "Function Name: " + function.name());
-			if (plugin.debug) caster.sendMessage(ChatColor.ITALIC + "Arguments: " + Arrays.toString(args));
+		//	if (plugin.debug) caster.sendMessage(ChatColor.ITALIC + "Arguments: " + Arrays.toString(args.));
 			if (plugin.debug) caster.sendMessage(ChatColor.ITALIC + "Amount of Targets: " + spellTarget.size());
 			
-    		for (LivingEntity currentTarget : spellTarget) {
+			
+			spellTarget.forEach((currentTarget) -> {
     			if (plugin.debug) caster.sendMessage("Target: " + currentTarget.toString());;
-    			this.wasSucessfull = function.runFunction(currentTarget, args);		
-    		}
+    			this.wasSucessfull = function.runFunction(currentTarget, args);	
+			});
+			
 			if (plugin.debug) caster.sendMessage(" ");
 			
 			//Recurse

@@ -23,12 +23,12 @@ import net.md_5.bungee.api.ChatColor;
 
 
 public class Main extends JavaPlugin {
-	
+		
 	//Define variables
 	public static Main instance;
     public Manager commandClass;
     public ActionBarClass actionBarClass;
-    public FunctionsRegister functionsRegister; 
+    public FunctionsRegister functionsRegister;
     public FileManager fileManager;
     public InventoryGUI inventoryGUI;
     public GerneralEventsHandler generalEventsHandler;

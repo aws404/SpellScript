@@ -5,7 +5,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
-import aws404.spells.SpellScriptVariable;
+import aws404.spells.SpellScriptArgument;
 import aws404.spells.functions.SpellScriptFunction;
 
 public class FunctionKick extends SpellScriptFunction {
@@ -21,7 +21,7 @@ public class FunctionKick extends SpellScriptFunction {
 	
 	//This is the function that will be ran when the function is called by a script 
 	@Override
-	public boolean runFunction(LivingEntity target, SpellScriptVariable[] args) {
+	public boolean runFunction(LivingEntity target, SpellScriptArgument[] args) {
 		//Arguments are passed in as SpellScriptVariableTypesbthese can 
 		// be easily converted to the desird type by using the provided functions
 		//Examples: args[0].getBoolean(); args[0].getLong(); ect
