@@ -1,26 +1,42 @@
 package aws404.spells.commands;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permission;
+
+import aws404.spells.SpellFile;
+import aws404.spells.selectors.SpellScriptSelector;
 
 public class CommandPrint extends AbstractCommand{
 
 	@Override
 	public boolean run(CommandSender sender, ArrayList<String> args, Boolean isPlayer) {
 		if (args.size() == 1) {
-			String[] lines = plugin.spellFiles.get(args.get(0));
+			SpellFile lines = plugin.spellFiles.get(args.get(0));
 			if (lines == null) {
 				sender.sendMessage("That spell does not exist!");
 				return true;
 			}
 			sender.sendMessage(ChatColor.BOLD + "" + ChatColor.UNDERLINE + "Script for the spell: " + args.get(0));
-			for (String line : lines) {
-				if (line.contentEquals("")) sender.sendMessage("COMMENT");
-				else sender.sendMessage(line);
-			}
+			lines.getLines().forEach((functionData) -> {
+				SpellScriptSelector<?> selector = functionData.getSelector();
+				sender.sendMessage("Selector: " + selector.identifier() + " Function: " + functionData.getName() + " Arguments:" + functionData.getArgs().length);
+			});
+			
+			
+			HashMap<String, SpellFile> subs = lines.getSubscripts();
+			
+			sender.sendMessage(ChatColor.BOLD + "Subscripts: " + ChatColor.ITALIC + subs.size());
+			subs.forEach((name, spellFile) -> {
+				sender.sendMessage(ChatColor.UNDERLINE + "SubScript: " + name);
+				spellFile.getLines().forEach((functionData) -> {
+					SpellScriptSelector<?> selector = functionData.getSelector();
+					sender.sendMessage("Selector: " + selector.identifier() + " Function: " + functionData.getName() + " Arguments:" + functionData.getArgs().length);
+				});
+			});
 			return true;
 		}
 		return false;

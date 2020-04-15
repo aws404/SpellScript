@@ -7,7 +7,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 
+import aws404.spells.SpellFile;
 import aws404.spells.SpellScriptSpell;
+import aws404.spells.SpellType;
+import aws404.spells.functions.SpellScriptReturnValue;
 
 public class CommandCast extends AbstractCommand{
 
@@ -45,10 +48,17 @@ public class CommandCast extends AbstractCommand{
 			return true;
 		}
 		
+		SpellFile spellFile = plugin.spellFiles.get(spellName);
+		
+		if (spellFile == null) {
+			sender.sendMessage("The spell " + spellName + " could not be found");
+			return true;
+		}
+		
 		sender.sendMessage("Casting Spell: " + spellName + ", with caster: " + caster.getName() + " and target " + target.getName());
-		SpellScriptSpell spell = new SpellScriptSpell(spellName, caster, target, false);
-		spell.cast();
-		sender.sendMessage("Spell Sucessfull: " + spell.wasSuccessful());
+		SpellScriptSpell spell = new SpellScriptSpell(spellName, spellFile, caster, target, SpellType.OTHER);
+		SpellScriptReturnValue value = spell.cast();
+		sender.sendMessage("Spell Returned: " + value.toString());
 		
 		return true;
 	}

@@ -20,7 +20,8 @@ import aws404.spells.FileManager;
 import aws404.spells.Main;
 import aws404.spells.ManaHandler;
 import aws404.spells.SpellScriptSpell;
-import aws404.spells.functions.SpellScriptFunction;
+import aws404.spells.SpellType;
+import aws404.spells.functions.SpellScriptReturnValue;
 
 public class SpellScriptAPI {
 	protected Main plugin = Main.instance;
@@ -83,57 +84,39 @@ public class SpellScriptAPI {
 	/**
 	 * Casts the specified spell using the target player as the target and caster;
 	 * @param spell the spell file to use (excluding the .spell)
-	 * @param target the player that will be used as the caster and target
-	 * @return if the spell was sucessfull or not
+	 * @param target the entity that will be used as the caster and target
+	 * @param spellType the type of spell
+	 * @return the {@link SpellScriptReturnValue} value of the spell
 	 */
-	public boolean castSpell(String spellFile, LivingEntity target, Boolean isWandCasted) {
-		return new SpellScriptSpell(spellFile, target, target, isWandCasted).cast();
+	public SpellScriptReturnValue castSpell(String spellFile, LivingEntity target, SpellType spellType) {
+		return new SpellScriptSpell(spellFile, target, target, spellType).cast();
 	}
 
 	/**
 	 * Casts the specified spell using the target player as the target and caster;
 	 * @param spell the spell file to use (excluding the .spell)
-	 * @param target the player that will be used as the caster and target
+	 * @param target the entity that will be used as the caster and target
 	 * @param isWandCasted whether the spell should be counted as casted from a wand
-	 * @return if the spell was sucessfull or not
+	 * @return the {@link SpellScriptReturnValue} value of the spell
 	 */
-	public boolean castSpell(String spellFile, LivingEntity target) {
-		return new SpellScriptSpell(spellFile, target, target, false).cast();
+	public SpellScriptReturnValue castSpell(String spellFile, LivingEntity target) {
+		return new SpellScriptSpell(spellFile, target, target, SpellType.OTHER).cast();
 	}
 
 	/**
 	 * Casts the specified spell using the target and caster players
 	 * @param spell the spell file to use (excluding the .spell)
-	 * @param target the player that will be used as the target
-	 * @param caster the player that will be used as the caster
-	 * @param isWandCasted whether the spell should be counted as casted from a wand
-	 * @return if the spell was sucessfull or not
+	 * @param target the entity that will be used as the target
+	 * @param caster the entity that will be used as the caster
+	 * @param spellType the type of spell
+	 * @return the {@link SpellScriptReturnValue} value of the spell
 	 */
-	public boolean castSpell(String spellFile, LivingEntity target, LivingEntity caster, Boolean isWandCasted) {
-		return new SpellScriptSpell(spellFile, caster, target, isWandCasted).cast();
+	public SpellScriptReturnValue castSpell(String spellFile, LivingEntity target, LivingEntity caster, SpellType spellType) {
+		return new SpellScriptSpell(spellFile, caster, target, spellType).cast();
 	}
 
 	/**
-	 * Registers a new function to the function register. The function must be a class that extends the {@link SpellScriptFunction} class
-	 * @param spellScriptFunctionClass the class which extends {@link SpellScriptFunction} and contains the required methods
-	 * @return whether the addition was sucessfull
-	 */
-	public boolean registerFunction(SpellScriptFunction spellScriptFunctionClass) {
-		return plugin.functionsRegister.registerCustomFunction(spellScriptFunctionClass);
-	}
-
-	/**
-	 * Un register a function from the function register. The function must be a class that extends the SpellScriptFunction class
-	 * @param spellScriptFunctionClass the class which extends {@link SpellScriptFunction} that you wish to remove
-	 * @return whether the removal was sucessfull
-	 * @return false if the function wasn't registered in the first place
-	 */
-	public boolean unRegisterFunction(SpellScriptFunction spellScriptFunctionClass) {
-		return plugin.functionsRegister.deRegisterCustomFunction(spellScriptFunctionClass);
-	}
-
-	/**
-	 * Get the itemstack for the wand item
+	 * Get the {@link ItemStack} for the wand item
 	 * @param spell name
 	 * @return wand item
 	 */
@@ -143,12 +126,19 @@ public class SpellScriptAPI {
 
 	}
 
-	public LivingEntity raytraceAs(Player p, Integer distance) {
-		RayTraceResult rt = p.rayTraceBlocks(20, FluidCollisionMode.NEVER);
+	/**
+	 * Get the {@link LivingEntity} the player is looking at 
+	 * @param player the player to conduct the raytrace from
+	 * @param distance the maximum distance to cover
+	 * @return the {@link LivingEntity} the player is looking at 
+	 * @return a Dummy {@link ArmorStand} if no entity can be found, this must be manually removed
+	 */
+	public LivingEntity raytraceAs(Player player, Integer distance) {
+		RayTraceResult rt = player.rayTraceBlocks(20, FluidCollisionMode.NEVER);
 		Location loc1;
 
 		if (rt == null) {
-			loc1 = p.getLocation();
+			loc1 = player.getLocation();
 			Vector dir = loc1.getDirection();
 
 			dir.normalize();
@@ -161,17 +151,17 @@ public class SpellScriptAPI {
 
 		ArrayList<LivingEntity> list = new ArrayList<LivingEntity>();
 
-		addNearbys(loc1, p, list, 3);
+		addNearbys(loc1, player, list, 3);
 		if (!list.isEmpty()) {
 			return ((LivingEntity) list.get(0));
 		}
 
-		addNearbys(loc1, p, list, 5);
+		addNearbys(loc1, player, list, 5);
 		if (!list.isEmpty()) {
 			return ((LivingEntity) list.get(0));
 		}
 
-		addNearbys(loc1, p, list, 7);
+		addNearbys(loc1, player, list, 7);
 		if (!list.isEmpty()) {
 			return ((LivingEntity) list.get(0));
 		}

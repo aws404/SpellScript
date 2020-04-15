@@ -1,63 +1,95 @@
 package aws404.spells;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Sound;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitScheduler;
-
 import aws404.spells.API.EntitySpellCastEvent;
 import aws404.spells.functions.FunctionsRegister;
-import aws404.spells.functions.SpellScriptFunction;
-import net.md_5.bungee.api.ChatColor;
+import aws404.spells.functions.SpellScriptReturnValue;
+import aws404.spells.selectors.SpellScriptSelector;
 
 public class SpellScriptSpell {
-	
+
 	protected Main plugin = Main.instance;
 	protected FunctionsRegister functionsRegister = plugin.functionsRegister;
 	protected ManaHandler manaHandler = plugin.manaHandler;
-	
-	private Boolean wasSucessfull;
+
+	//private Boolean wasSucessfull;
 	private String spellName;
 	private LivingEntity caster;
 	private LivingEntity target;
-	private Boolean castedByWand;
-	private String[] lines;
-	
+	private SpellType spellType;
+	private ArrayList<FunctionData> lines;
+	private Integer currentLine = 0;
+	private SpellFile spellFile;
+	private SpellScriptReturnValue state = SpellScriptReturnValue.CONTINUE;
+
 	/**
 	 * Create a new {@link SpellScriptSpell} element
 	 * @param spellName the name of the spell
 	 * @param caster the {@link LivingEntity} to be the caster
 	 * @param target the {@link LivingEntity} to be the target
-	 * @param castedByWand whether the spell should considered wand created
+	 * @param spellType the type of spell
 	 */
-	public SpellScriptSpell(String spellName, LivingEntity caster, LivingEntity target, Boolean castedByWand) {
+	public SpellScriptSpell(String spellName, LivingEntity caster, LivingEntity target, SpellType spellType) {
 		this.spellName = spellName;
 		this.caster = caster;
 		this.target = target;
-		this.castedByWand = castedByWand;
-		this.lines = plugin.spellFiles.get(spellName);
+		this.spellType = spellType;
+		this.spellFile = plugin.spellFiles.get(spellName);
+		this.lines = spellFile.getLines();
 	}
 	
 	/**
 	 * Create a new {@link SpellScriptSpell} element
-	 * @param spellName the name of the spell
+	 * @param lines an {@link ArrayList} of {@link FunctionData}
 	 * @param caster the {@link LivingEntity} to be the caster
-	 * @param castedByWand whether the spell should considered wand created
+	 * @param target the {@link LivingEntity} to be the target
+	 * @param spellType whether the spell should considered wand casted
 	 */
-	public SpellScriptSpell(String spellName, LivingEntity caster, Boolean castedByWand) {
+	public SpellScriptSpell(String spellName, ArrayList<FunctionData> lines, LivingEntity caster, LivingEntity target, SpellType spellType) {
 		this.spellName = spellName;
 		this.caster = caster;
-		this.lines = plugin.spellFiles.get(spellName);
-		this.castedByWand = castedByWand;
+		this.target = target;
+		this.spellType = spellType;
+		this.lines = lines;
+	}
+
+	/**
+	 * Create a new {@link SpellScriptSpell} element
+	 * @param spellName the name of the spell
+	 * @param caster the {@link LivingEntity} to be the caster
+	 * @param spellType whether the spell should considered wand created
+	 */
+	public SpellScriptSpell(String spellName, LivingEntity caster, SpellType spellType) {
+		this.spellName = spellName;
+		this.caster = caster;
+		this.spellFile = plugin.spellFiles.get(spellName);
+		this.lines = spellFile.getLines();
+		this.spellType = spellType;
 	}
 	
+	/**
+	 * Create a new {@link SpellScriptSpell} element
+	 * @param spellFile the {@link SpellFile} to base the spell off
+	 * @param caster the {@link LivingEntity} to be the caster
+	 * @param target the {@link LivingEntity} to be the target
+	 * @param spellType whether the spell should considered wand casted
+	 */
+	public SpellScriptSpell(String spellName, SpellFile spellFile, LivingEntity caster, LivingEntity target, SpellType spellType) {
+		this.spellName = spellName;
+		this.caster = caster;
+		this.target = target;
+		this.spellFile = spellFile;
+		this.lines = spellFile.getLines();
+		this.spellType = spellType;
+	}
+
 	/**
 	 * Change the target
 	 * @param target the {@link LivingEntity} to be the target
@@ -65,7 +97,7 @@ public class SpellScriptSpell {
 	public void setTarget(LivingEntity target) {
 		this.target = target;
 	}
-	
+
 	/**
 	 * Only casts the spell if the player has enough mana, does not take mana
 	 * @param requiredMana the amount of mana required
@@ -76,171 +108,120 @@ public class SpellScriptSpell {
 		if (caster.getType() == EntityType.PLAYER) player = (Player) caster;
 		else return true;
 		if (manaHandler.getMana(player) >= requiredMana) {
-	    	EntitySpellCastEvent event = new EntitySpellCastEvent(spellName, target, caster, castedByWand);
-	    	Bukkit.getPluginManager().callEvent(event);
-	    	if (!event.isCancelled()) {
-	    		wasSucessfull = true;
-	        	doActionRecursively(0);  
-	        	if (wasSucessfull) {
-	        		manaHandler.takeMana(requiredMana, player);
-	        	}
-	    	} else {
-	    		wasSucessfull = false;
-	    	}
-	    	return wasSucessfull;
+			SpellScriptReturnValue value = cast();
+			if (value == SpellScriptReturnValue.FINSIH) {
+				manaHandler.takeMana(requiredMana, player);
+				return true;
+			}
 		} else {
 			plugin.actionBarClass.sendActionbar(player, ChatColor.RED + "Not Enough Mana!");
-	    	player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1, 1);
-			return false;
+			player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1, 1);
 		}
+		return false;
 	}
-	
+
 	/**
 	 * Casts the spell element
-	 * @return if the spell was sucessfull or not
+	 * @return the {@link SpellScriptReturnValue} of the spell
 	 */
-	public boolean cast() {
-    	EntitySpellCastEvent event = new EntitySpellCastEvent(spellName, target, caster, castedByWand);
-    	Bukkit.getPluginManager().callEvent(event);
-    	if (!event.isCancelled()) {
-    		this.wasSucessfull = true;
-        	doActionRecursively(0);  
-    	} else {
-    		this.wasSucessfull = false;
-    	}
-    	return this.wasSucessfull;
-	}
-	
-	/**
-	 * Sets if the spell was successful or not
-	 * @param value new wasSuccessful value
-	 */
-	public void setSuccessful(Boolean value) {
-		this.wasSucessfull = value;
-	}
-	
-	/**
-	 * Whether the spell was successful or not
-	 * @return whether the spell was sucessful or not
-	 */
-	public Boolean wasSuccessful() {
-		return this.wasSucessfull;
-	}
-	
-	@SuppressWarnings("unchecked")
-	private void doActionRecursively(Integer line) {
-		if (lines.length <= line) {
-    		if (plugin.debug) target.sendMessage("Done");
-    		return;
-    	}
-    	int newLine = line +1;
-    	
-    	String lineString = lines[line];
-    	
-    	//exclude comments
-    	int commentStart = lineString.indexOf("//");
-    	if (commentStart != -1) {
-    		lineString = lineString.substring(0, commentStart);
-    	}
-    	
-    	
-    	String[] segments = lineString.split("\\.", 2);
-		String selector = segments[0];
-
-
-		//Spell Selector
-    	if (selector.contentEquals("spell")) {
-		      for(int i = 1; i < segments.length; i++){
-		    	  String instruction = segments[i];	
-		    	  if (plugin.debug) target.sendMessage(instruction);
-		    	  
-		    	  if (instruction.contains("wait")) {
-		    		  Long arg = SpellScriptArgument.decompileInstruction(instruction)[0].getLong();
-		    		  Long amount = arg *2L/100L;;
-		    	        BukkitScheduler scheduler = plugin.getServer().getScheduler();
-		    	        scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
-		    	            @Override
-		    	            public void run() {
-		    	            	if (plugin.debug) target.sendMessage("finished " + String.valueOf(amount));
-		    	            	doActionRecursively(newLine);
-		    	            	return;
-		    	            }
-		    	        }, amount);
-		    	        return;
-		    	  }
-		    	  if (instruction.contains("stop")) {
-		    		  if (plugin.debug) target.sendMessage(instruction + "STOPPING");
-		    		  return;
-		    	  }
-		    	  
-		      }
+	public SpellScriptReturnValue cast() {
+		EntitySpellCastEvent event = new EntitySpellCastEvent(spellName, target, caster, spellType);
+		Bukkit.getPluginManager().callEvent(event);
+		if (!event.isCancelled()) {
+			nextAction(); 
+		} else {
+			state = SpellScriptReturnValue.STOP;
 		}
-    	
-    	//Target and Caster Selector
-    	if (selector.contains("target") || selector.contains("caster")) {
-    		List<LivingEntity> spellTarget = new ArrayList<LivingEntity>();
-    		
-    		if(!selector.contains("[")) {
-    			//Targeting Single Entity
-    			if (selector.toLowerCase().contentEquals("target")) spellTarget.add(target);
-    			
-       			if (selector.toLowerCase().contentEquals("caster")) spellTarget.add(caster);	
-    		}
-    		
-    		if (selector.contains("[")) {
-    			//Radius Target
-    			int radius = Integer.parseInt(StringUtils.substringBetween(selector, "[", "]"));
-    			
-    			if (selector.contains("target")) {
-    				List<Entity> nearby = target.getNearbyEntities(radius, radius, radius);
-    				nearby.removeIf((e) -> (!e.getType().isAlive() || e.equals(caster) || e.equals(target)));
-    				List<LivingEntity> livingnearby = (List<LivingEntity>) ((Object) nearby);
-    				spellTarget.addAll(livingnearby);
-    			}
-    			
-    			if (selector.contains("caster")) {
-    				List<Entity> nearby = caster.getNearbyEntities(radius, radius, radius);
-    				nearby.removeIf((e) -> (!e.getType().isAlive() || e.equals(caster) || e.equals(target)));
-    				List<LivingEntity> livingnearby = (List<LivingEntity>) ((Object) nearby);
-    				spellTarget.addAll(livingnearby);
-    			}
-    		}
-    		
-    		
-			String instruction = segments[1];
-			SpellScriptArgument[] args = SpellScriptArgument.decompileInstruction(instruction);
-			String functionName = instruction.substring(0, instruction.indexOf("("));
-			SpellScriptFunction function = functionsRegister.getFunction(functionName);
-			
-			if (function.name().equalsIgnoreCase("stop")) {
-				this.wasSucessfull = false;
-				plugin.sendError("On line "+ newLine + ", " + functionName + " is an unkown function");
-				return;
-			}
-
-			
-			
-			if (plugin.debug) caster.sendMessage(ChatColor.BOLD + "Script: " + instruction);
-			if (plugin.debug) caster.sendMessage(ChatColor.BOLD + "Function Name: " + function.name());
-		//	if (plugin.debug) caster.sendMessage(ChatColor.ITALIC + "Arguments: " + Arrays.toString(args.));
-			if (plugin.debug) caster.sendMessage(ChatColor.ITALIC + "Amount of Targets: " + spellTarget.size());
-			
-			
-			spellTarget.forEach((currentTarget) -> {
-    			if (plugin.debug) caster.sendMessage("Target: " + currentTarget.toString());;
-    			this.wasSucessfull = function.runFunction(currentTarget, args);	
-			});
-			
-			if (plugin.debug) caster.sendMessage(" ");
-			
-			//Recurse
-			if (this.wasSucessfull) 
-				doActionRecursively(newLine);
-    	    return;
-		    	  
-    	}
-    	//if target type isnt caught 
-    	plugin.sendError("On line "+ newLine + ", " + selector + " is an unkown selector");
+		return state;
 	}
 
+	/**
+	 * The current state of the spell
+	 * @return the {@link SpellScriptReturnValue} of the spell in its current state
+	 */
+	public SpellScriptReturnValue getState() {
+		return state;
+	}
+
+	/**
+	 * @return the spell name
+	 */
+	public String getSpellName() {
+		return spellName;
+	}
+
+	/**
+	 * @return the target of the spell
+	 */
+	public LivingEntity getTarget() {
+		return target;
+	}
+	
+	/**
+	 * @return the caster of the spell
+	 */
+	public LivingEntity getCaster() {
+		return caster;
+	}
+	
+	/**
+	 * @return the {@link SpellFile} used to generate the spell 
+	 * @return null if not supplied
+	 */
+	public SpellFile getSpellFile() {
+		return spellFile;
+	}
+
+	/**
+	* Starts the next action of the spell
+ 	*/
+	public void nextAction() {
+		if (lines.size() <= currentLine) {
+			state = SpellScriptReturnValue.FINSIH;
+			return;
+		}
+
+		FunctionData functionData = lines.get(currentLine);
+
+		currentLine += 1;
+
+		SpellScriptSelector<?> selector = functionData.getSelector();
+		Integer radius = functionData.getRadius();
+		String functionName = functionData.getName();
+		SpellScriptArgument[] args = functionData.getArgs();
+		
+		if (plugin.debug) {
+			caster.sendMessage(ChatColor.BOLD + "Selector: " + ChatColor.RESET + selector.identifier());
+			caster.sendMessage(ChatColor.BOLD + "Function: " + ChatColor.RESET + functionName);
+			caster.sendMessage(ChatColor.BOLD + "Arguments:");
+			for (SpellScriptArgument arg : args) {
+				caster.sendMessage(" - " + arg.literalValue());
+			}
+		}
+		
+		SpellScriptReturnValue value = selector.runFunction(functionName, this, target, caster, args, radius);
+		
+		if (plugin.debug) caster.sendMessage(ChatColor.BOLD + "Return Code: " + ChatColor.RESET + value.toString());
+			
+		
+		switch(value) {
+			case CONTINUE:
+			case TRUE:
+			case FALSE:
+				nextAction();
+				break;
+			case ERROR:
+				plugin.sendError("On line " + currentLine);
+			case FINSIH:
+			case STOP:
+				state = value;
+				return;
+		}
+	}
+	
 }
+
+	//if (plugin.debug) caster.sendMessage(ChatColor.BOLD + "Script: " + instruction);
+	//if (plugin.debug) caster.sendMessage(ChatColor.BOLD + "Function Name: " + functionName);
+	//if (plugin.debug) caster.sendMessage(ChatColor.ITALIC + "Amount of Targets: " + spellTarget.size());
+

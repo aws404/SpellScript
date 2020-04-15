@@ -8,6 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -19,7 +20,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import aws404.spells.API.SpellScriptAPI;
 import aws404.spells.commands.Manager;
 import aws404.spells.functions.FunctionsRegister;
-import net.md_5.bungee.api.ChatColor;
 
 
 public class Main extends JavaPlugin {
@@ -40,7 +40,7 @@ public class Main extends JavaPlugin {
 	public Inventory spellGUI;
 	public boolean apiIsEnabled = false;
 	
-	public HashMap<String, String[]> spellFiles = new HashMap<String, String[]>();
+	public HashMap<String, SpellFile> spellFiles = new HashMap<String, SpellFile>();
 	
 	
 	public ArrayList<Player> frozenPlayers = new ArrayList<Player>();
@@ -83,7 +83,10 @@ public class Main extends JavaPlugin {
 
         //Register Functions
         functionsRegister = new FunctionsRegister(this);
+        functionsRegister.registerSelectors();
         functionsRegister.registerFunctions();
+        
+        spellFiles = fileManager.getSpellFiles();
         
         //Start API
         API = new SpellScriptAPI();
@@ -95,6 +98,8 @@ public class Main extends JavaPlugin {
         System.out.println(Arrays.toString(spellFiles.keySet().toArray()));
         System.out.println("Using Mana: " + usingMana);
         System.out.println("API enabled: " + apiIsEnabled); 
+        
+
     }
  
 

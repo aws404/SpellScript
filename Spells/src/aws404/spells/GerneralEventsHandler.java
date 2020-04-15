@@ -113,7 +113,7 @@ public class GerneralEventsHandler implements Listener{
 			    			if (fileManager.getSpells().getString(foundValue + ".target").equalsIgnoreCase("raytrace")) 
 			    				target = plugin.API.raytraceAs(p, 20);
 			    			
-			    			SpellScriptSpell spell = new SpellScriptSpell(foundValue, p, target, true);
+			    			SpellScriptSpell spell = new SpellScriptSpell(foundValue, p, target, SpellType.NORMAL);
 			    			
 			    			
 	    		    		if (spell.castWithMana(manaCost)) 

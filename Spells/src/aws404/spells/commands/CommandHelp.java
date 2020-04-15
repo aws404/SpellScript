@@ -3,10 +3,10 @@ package aws404.spells.commands;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permission;
 
-import net.md_5.bungee.api.ChatColor;
 
 public class CommandHelp extends AbstractCommand{
 

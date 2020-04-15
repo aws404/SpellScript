@@ -5,6 +5,8 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+import aws404.spells.SpellType;
+
 public class EntitySpellCastEvent extends Event implements Cancellable{
 	
 	private Boolean isCancelled;
@@ -12,16 +14,16 @@ public class EntitySpellCastEvent extends Event implements Cancellable{
 	private String spellName;
 	private LivingEntity target;
 	private LivingEntity caster;
-	private Boolean castByWand;
+	private SpellType spellType;
 	
     private static final HandlerList HANDLERS = new HandlerList();
     
-    public EntitySpellCastEvent(String spellName, LivingEntity target, LivingEntity caster, Boolean castByWand) {
+    public EntitySpellCastEvent(String spellName, LivingEntity target, LivingEntity caster, SpellType spellType) {
         this.isCancelled = false;
         this.spellName = spellName;
         this.target = target;
         this.caster = caster;
-        this.castByWand = castByWand;
+        this.spellType = spellType;
 	}
 
     @Override
@@ -29,12 +31,8 @@ public class EntitySpellCastEvent extends Event implements Cancellable{
         return HANDLERS;
     }
 
-    public static HandlerList getHandlerList() {
-        return HANDLERS;
-    }
-
     /**
-     * Tests if the event has been cancled
+     * Tests if the event has been canceled
      * @return Whether the event has been canceled
      */
 	@Override
@@ -76,11 +74,11 @@ public class EntitySpellCastEvent extends Event implements Cancellable{
 	}
 	
 	/**
-	 * Gets whether the spell was initiated by a wand or not
-	 * @return True if the spell was cast from a wand
+	 * Gets the spell type
+	 * @return the spell type
 	 */
-	public Boolean castedByWand() {
-		return castByWand;
+	public SpellType getSpellType() {
+		return spellType;
 	}
 	
 	/**
@@ -109,10 +107,10 @@ public class EntitySpellCastEvent extends Event implements Cancellable{
 	
 	/**
 	 * Modify whether the spell was initiated by a wand or not
-	 * @param castedByWand - the new value
+	 * @param spellType - the new value
 	 */
-	public void setCastedByWand(Boolean castedByWand) {
-		this.castByWand = castedByWand;
+	public void setSpellType(SpellType spellType) {
+		this.spellType = spellType;
 	}
 
 

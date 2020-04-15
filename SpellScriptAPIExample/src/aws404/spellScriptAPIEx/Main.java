@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import aws404.spells.API.SpellScriptAPI;
+import aws404.spells.functions.FunctionsRegister;
 
 
 public class Main extends JavaPlugin {
@@ -24,11 +25,12 @@ public class Main extends JavaPlugin {
     	
     	//Ensure SpellScript is Enabled
     	if (Bukkit.getPluginManager().isPluginEnabled("SpellScript")) {
-    		//Asign SpellScriptAPI variable to new instance of the API
+    		//Assign SpellScriptAPI variable to new instance of the API
     		ssapi = new SpellScriptAPI();
     		
     		//Register the new Function
-    		ssapi.registerFunction(new FunctionKick());
+    		FunctionsRegister.registerFunction(new FunctionKick(), "caster", "target");
+
     		
     		getServer().getPluginManager().registerEvents(new GerneralEventsHandler(), this);
     	} else {

@@ -28,6 +28,7 @@ public class Manager implements CommandExecutor{
 	        this.commands.add(new CommandPrint());
 	        this.commands.add(new CommandReload());
 	        this.commands.add(new CommandCast());
+	        this.commands.add(new CommandCastSub());
 
 	    }
 	    
